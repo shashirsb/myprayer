@@ -1,4 +1,5 @@
 import { MongoClient } from 'mongodb';
+import { credentialService, mongoCredentials } from './credentials.ts';
 import { makeAccess } from './access.ts';
 import { accessServer } from './http.ts';
 import { mongoOversight } from './oversight.ts';
@@ -17,7 +18,7 @@ async function launch() {
     throw new Error('Invalid deployment environment');
   }
   const providers = httpsProviders(
-    { url: httpsOrigin(required('PRIMARY_PROVIDER_ORIGIN')), token: required('PRIMARY_PROVIDER_TOKEN') },
+    undefined,
     { url: httpsOrigin(required('PHOTO_PROVIDER_ORIGIN')), token: required('PHOTO_PROVIDER_TOKEN') },
     httpsOrigin(required('PHOTO_CAPTURE_ORIGIN')),
   );
@@ -28,8 +29,10 @@ async function launch() {
   try {
     await db.connect();
     const database = db.db(required('MONGODB_DB'));
-    const [store, oversight] = await Promise.all([mongoStore(database), mongoOversight(database)]);
-    const server = accessServer(makeAccess(store, providers, mode === 'development'), origin.origin, oversight);
+    const key = required('STAFF_CREDENTIAL_HMAC_KEY');
+    if (Buffer.byteLength(key) < 32) throw new Error('Credential HMAC key must have at least 32 bytes');
+    const [store, oversight, credentials] = await Promise.all([mongoStore(database), mongoOversight(database), mongoCredentials(database)]);
+    const server = accessServer(makeAccess(store, providers, mode === 'development'), origin.origin, oversight, credentialService(credentials, key, mode === 'development'));
     server.on('error', () => {
       console.error('staff_access_listener_failed');
       void db.close().finally(() => { process.exitCode = 1; });
