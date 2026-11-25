@@ -1,6 +1,7 @@
 import { MongoClient } from 'mongodb';
 import { makeAccess } from './access.ts';
 import { accessServer } from './http.ts';
+import { mongoOversight } from './oversight.ts';
 import { mongoStore } from './mongo.ts';
 import { httpsOrigin, httpsProviders } from './providers.ts';
 
@@ -26,8 +27,9 @@ async function launch() {
   const db = new MongoClient(required('MONGODB_URI'), { serverSelectionTimeoutMS: 8000, retryWrites: true, writeConcern: { w: 'majority' } });
   try {
     await db.connect();
-    const store = await mongoStore(db.db(required('MONGODB_DB')));
-    const server = accessServer(makeAccess(store, providers, mode === 'development'), origin.origin);
+    const database = db.db(required('MONGODB_DB'));
+    const [store, oversight] = await Promise.all([mongoStore(database), mongoOversight(database)]);
+    const server = accessServer(makeAccess(store, providers, mode === 'development'), origin.origin, oversight);
     server.on('error', () => {
       console.error('staff_access_listener_failed');
       void db.close().finally(() => { process.exitCode = 1; });
