@@ -132,6 +132,12 @@ test('HTTP requires a complete staff session and a same-origin POST', async t =>
     method: 'POST', headers: {'content-type':'application/json', origin:requestOrigin, cookie}, body: JSON.stringify(body),
   });
   assert.equal((await post('/v1/sign-in', {proof:'otp-proof'}, '', 'https://elsewhere.example.test')).status, 403);
+  const signIn = await fetch(base + '/staff/sign-in');
+  assert.equal(signIn.status, 200);
+  assert.match(await signIn.text(), /Continue with password/);
+  assert.match((await fetch(base + '/staff/sign-in.js')).headers.get('content-type')!, /javascript/);
+  assert.deepEqual(await (await fetch(base + '/v1/staff-config')).json(), {demoOtp:false});
+  assert.equal((await fetch(base + '/temple')).status, 401);
   assert.equal((await fetch(base + '/ministry')).status, 401);
   const start = await post('/v1/sign-in', {proof:'otp-proof'});
   assert.equal(start.status, 200);
@@ -142,6 +148,9 @@ test('HTTP requires a complete staff session and a same-origin POST', async t =>
   assert.equal(finish.status, 200);
   const session = finish.headers.getSetCookie().find(header => header.startsWith('__Host-myp_session='))!.split(';')[0];
   assert.equal((await post('/v1/access/check', {permission:'ticket.print', ...scope}, session)).status, 200);
+  const temple = await fetch(base + '/temple', {headers:{cookie:session}});
+  assert.equal(temple.status, 200);
+  assert.match(await temple.text(), /print-operator/);
   assert.equal((await fetch(base + '/ministry', {headers:{cookie:session}})).status, 403);
   assert.equal((await post('/v1/sign-out', {}, session)).status, 200);
   assert.equal((await post('/v1/access/check', {permission:'ticket.print', ...scope}, session)).status, 401);
