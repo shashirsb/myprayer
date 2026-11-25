@@ -1,3 +1,4 @@
+import type { OversightStore } from './oversight.ts';
 import { ministryImage, ministryPage } from './ministry.ts';
 import { createServer } from 'node:http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -52,7 +53,7 @@ function field(value: unknown, max: number) {
   return value;
 }
 
-export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin: string) {
+export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin: string, oversight?: OversightStore) {
   const server = createServer(async (req, res) => {
     try {
       const path = req.url?.split('?')[0];
@@ -63,8 +64,10 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
         const { active } = await access.profile(session);
         if (active?.workspace !== 'ministry') throw new AccessError(403, 'ministry_assignment_required');
         const query = new URLSearchParams(req.url?.split('?')[1]);
+        const districts = query.get('view') === 'districts';
+        const temples = districts && path === '/ministry' && oversight ? await oversight.list(active) : [];
         const content = path === '/ministry'
-          ? ministryPage(active, query.get('module'), query.get('view') === 'districts')
+          ? ministryPage(active, query.get('module'), districts, temples, query.get('temple'))
           : await ministryImage(path.slice('/ministry/art/'.length));
         if (content === null) return respond(res, 404, { error: 'not_found' });
         res.writeHead(200, {
