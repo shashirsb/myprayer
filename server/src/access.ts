@@ -93,13 +93,12 @@ export function makeAccess(store: Store, providers: Providers, development: bool
     const assignment = assignments.find(item => item.id === session.assignmentId);
     return { session, account, assignments, assignment };
   }
-  return {
-    async start(proof: string) {
+  async function start(firstFactor: () => Promise<PrimaryProof>) {
       const id = randomUUID();
       const now = clock();
-      const primary = await providers.primary(proof).catch((error: unknown) =>
+      const primary = await firstFactor().catch((error: unknown) =>
         deny(id, 'first_factor', error instanceof AccessError ? error.status : 503,
-          error instanceof AccessError && error.status === 401 ? 'first_factor_rejected' : 'first_factor_unavailable'),
+          error instanceof AccessError && error.status < 500 ? error.message : 'first_factor_unavailable'),
       );
       if (!['password', 'otp'].includes(primary.method) || !(primary.authenticatedAt <= now && primary.authenticatedAt > after(now, -60))) {
         return deny(id, 'first_factor', 401, 'fresh_first_factor_required');
@@ -118,7 +117,10 @@ export function makeAccess(store: Store, providers: Providers, development: bool
       })) return deny(id, 'first_factor', 401, 'first_factor_already_used', account.personId);
       await record({ attemptId: id, actor: account.personId, event: 'photo', outcome: 'pending' });
       return { attempt: raw, captureUrl: photo.captureUrl };
-    },
+  }
+  return {
+    start: (proof: string) => start(() => providers.primary(proof)),
+    startVerified: start,
     async complete(raw: string) {
       const attempt = raw && await store.consumeAttempt(keyOf(raw), clock());
       if (!attempt) throw new AccessError(401, 'photo_challenge_required');
