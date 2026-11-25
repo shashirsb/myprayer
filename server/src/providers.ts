@@ -29,9 +29,10 @@ function requiredString(value: unknown) {
   return value;
 }
 
-export function httpsProviders(primary: Service, photo: Service, captureOrigin: URL): Providers {
+export function httpsProviders(primary: Service | undefined, photo: Service, captureOrigin: URL): Providers {
   return {
     async primary(proof) {
+      if (!primary) throw new AccessError(404, 'not_found');
       const result = await request(primary, '/v1/verify-proof', { proof });
       const method = result.method;
       if (method !== 'otp' && method !== 'password') throw new Error('Invalid first factor');
