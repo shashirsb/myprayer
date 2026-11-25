@@ -2,7 +2,7 @@
 set -euo pipefail
 
 project=${1:?Usage: bash deploy/gcp/provision.sh PROJECT_ID [ZONE]}
-zone=${2:-us-central1-a}
+zone=${2:-asia-south1-a}
 region=${zone%-*}
 network=myprayer-vpc
 subnet=myprayer-subnet
