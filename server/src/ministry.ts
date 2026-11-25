@@ -1,3 +1,4 @@
+import type { TempleSummary } from './oversight.ts';
 import { readFile } from 'node:fs/promises';
 
 const modules = [
@@ -16,10 +17,12 @@ export async function ministryImage(id: string) {
 
 type MinistryAssignment = { role: string; institution: string; jurisdiction?: string; permissions: string[] };
 
-export function ministryPage(assignment: MinistryAssignment, selectedId: string | null, districts: boolean) {
+export function ministryPage(assignment: MinistryAssignment, selectedId: string | null, districts: boolean, temples: TempleSummary[] = [], templeId: string | null = null) {
   const allowed = modules.filter(module => assignment.permissions.some(permission => module.permission.test(permission)));
   const selected = allowed.find(module => module.id === selectedId);
   if (selectedId && !selected) return null;
+  const temple = temples.find(item => item.id === templeId);
+  if (templeId && (!districts || !temple)) return null;
   const jurisdiction = escape(assignment.jurisdiction ?? assignment.institution);
   const title = districts ? 'District oversight' : 'Ministry oversight';
   return `<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -35,7 +38,7 @@ export function ministryPage(assignment: MinistryAssignment, selectedId: string 
   .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:13px}.card{display:block;border:1px solid #ccc;border-radius:10px;padding:7px;text-decoration:none;background:white}
   .card img{width:100%;height:clamp(88px,12vw,154px);object-fit:cover;border-radius:5px}.card h3{font-size:20px;margin:4px 3px}.card p{margin:0 3px 4px;color:#555}
   a:focus-visible{outline:3px solid #886600;outline-offset:3px}.district{margin-top:18px}aside{position:fixed;inset:56px 0 0 auto;background:#fff;border-left:1px solid #bbb;box-shadow:-6px 0 20px #0002;padding:24px;width:min(460px,100vw);overflow:auto}aside img{width:100%;border-radius:6px;margin:10px 0}
-  .drawer-head{display:flex;justify-content:space-between;gap:12px}.drawer-head a{font-size:24px;text-decoration:none}
+  table{width:100%;border-collapse:collapse;margin-bottom:16px;text-align:left}th,td{border-bottom:1px solid #ddd;padding:9px 6px}.drawer-head{display:flex;justify-content:space-between;gap:12px}.drawer-head a{font-size:24px;text-decoration:none}
   @media(max-width:640px){header{gap:14px}.brand{font-size:24px}.queues{grid-template-columns:1fr;gap:14px}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}.hero img{opacity:.38}.hero{min-height:190px}}
   </style></head><body>
   <header><a class="brand" href="/ministry">pray<span class="mark" aria-hidden="true"></span></a>
@@ -43,10 +46,12 @@ export function ministryPage(assignment: MinistryAssignment, selectedId: string 
   <a href="/ministry#modules">Modules</a></header>
   <main><section class="hero"><img src="/ministry/art/hero" alt=""><p>Karnataka · HRI&amp;CE</p><h1>${title}</h1>
   <p class="note">Staging preview</p><p class="scope"><strong>Assigned scope:</strong> ${jurisdiction}</p></section>
-  ${districts ? '<section class="district"><h2>Temples in scope</h2><p class="note">Registry data will appear here when connected.</p></section>' :
+  ${districts ? `<section class="district"><h2>Temples in scope</h2>${temples.length ? `<table><thead><tr><th scope="col">Temple</th><th scope="col">Inspection</th><th scope="col">Exceptions</th></tr></thead><tbody>${temples.map(item =>
+    `<tr><td><a href="/ministry?view=districts&amp;temple=${encodeURIComponent(item.id)}">${escape(item.name)}</a></td><td>${escape(item.inspection)}</td><td>${escape(String(item.exceptions))}</td></tr>`).join('')}</tbody></table>` : '<p class="note">No temples are available in this assignment.</p>'}</section>` :
     '<div class="queues"><section><h2>Needs attention</h2><p class="note">No review feed is connected.</p></section><section><h2>Upcoming reviews</h2><p class="note">No review schedule is connected.</p></section></div>'}
   <section id="modules"><h2>Oversight modules</h2>
   <div class="cards">${allowed.map(module => `<a class="card" href="/ministry?${districts ? 'view=districts&amp;' : ''}module=${module.id}"><img src="/ministry/art/${module.id}" alt=""><h3>${escape(module.title)}</h3><p>${escape(module.description)}</p></a>`).join('')}</div></section></main>
-  ${selected ? `<aside aria-labelledby="detail-title"><div class="drawer-head"><h2 id="detail-title">${escape(selected.title)}</h2><a aria-label="Close drawer" href="${districts ? '/ministry?view=districts' : '/ministry'}">×</a></div><p>${jurisdiction}</p><img src="/ministry/art/${selected.id}" alt=""><p class="note">Records will appear here when connected.</p></aside>` : ''}
+  ${temple ? `<aside aria-labelledby="temple-title"><div class="drawer-head"><h2 id="temple-title">${escape(temple.name)}</h2><a aria-label="Close drawer" href="/ministry?view=districts">×</a></div><p>${escape(temple.jurisdiction)}</p><p>Inspection status: ${escape(temple.inspection)}</p><p>Open exceptions: ${escape(String(temple.exceptions))}</p></aside>` : ''}
+  ${selected && !temple ? `<aside aria-labelledby="detail-title"><div class="drawer-head"><h2 id="detail-title">${escape(selected.title)}</h2><a aria-label="Close drawer" href="${districts ? '/ministry?view=districts' : '/ministry'}">×</a></div><p>${jurisdiction}</p><img src="/ministry/art/${selected.id}" alt=""><p class="note">Records will appear here when connected.</p></aside>` : ''}
   </body></html>`;
 }
