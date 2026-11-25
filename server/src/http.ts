@@ -1,3 +1,4 @@
+import { ministryImage, ministryPage } from './ministry.ts';
 import { createServer } from 'node:http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { AccessError, attemptSeconds, sessionSeconds } from './access.ts';
@@ -58,6 +59,22 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
       const session = readCookie(req, staffCookie);
       const attempt = readCookie(req, attemptCookie);
 
+      if (req.method === 'GET' && (path === '/ministry' || path?.startsWith('/ministry/art/'))) {
+        const { active } = await access.profile(session);
+        if (active?.workspace !== 'ministry') throw new AccessError(403, 'ministry_assignment_required');
+        const query = new URLSearchParams(req.url?.split('?')[1]);
+        const content = path === '/ministry'
+          ? ministryPage(active, query.get('module'), query.get('view') === 'districts')
+          : await ministryImage(path.slice('/ministry/art/'.length));
+        if (content === null) return respond(res, 404, { error: 'not_found' });
+        res.writeHead(200, {
+          'content-type': typeof content === 'string' ? 'text/html; charset=utf-8' : 'image/jpeg',
+          'cache-control': 'no-store',
+          'x-content-type-options': 'nosniff',
+          'content-security-policy': "default-src 'none'; img-src 'self'; style-src 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'",
+        });
+        return res.end(content);
+      }
       if (req.method === 'GET' && path === '/healthz') return respond(res, 200, { ok: true });
       if (req.method === 'GET' && path === '/v1/session') return respond(res, 200, await access.profile(session));
       if (req.method !== 'POST') return respond(res, 404, { error: 'not_found' });
