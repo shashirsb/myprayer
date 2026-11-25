@@ -58,3 +58,9 @@ The session response identifies the workspace for each assignment. **Temple** co
 Each protected business handler must resolve institution, jurisdiction, station, shift, case and work order from server-side records. Sensitive approvals additionally need their own current authority instrument, any applicable amount limit, and a different underlying initiator. The generic access check intentionally takes only institution and station and cannot grant access to approvals that require trusted case or authority context. The catalogue does not establish statutory authority. Load approved authority instruments and routing for the target institutions before enabling those actions.
 
 The protected staging preview at `GET /ministry` reads the active Ministry assignment from the staff session. Module cards and their detail drawers reflect its candidate permissions. Live registry, inspection, finance and report feeds remain to be integrated. Test data and artwork are illustrative.
+
+### District registry feed and container
+
+The staging container uses the `server/` directory as its build context. Build it with `docker build -t myprayer-access ./server`. Configure secrets at runtime. The image defaults to production mode and rejects development test accounts.
+
+The Ministry district view reads bounded summaries from `ministry_temple_summary`. An authorized import writes `id`, `name`, `institution`, `jurisdiction`, `stateScope`, `inspection` (Due or Current) and `exceptions` (nonnegative count). Use stable, globally namespaced jurisdiction IDs and the assigned state scope key. Keep personal and financial details in their own approved evidence systems. The current table displays up to 100 summaries per scope. Direct temple links resolve only from the same scoped result set. State and district scopes never come from URL parameters.
