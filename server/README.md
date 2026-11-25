@@ -95,3 +95,9 @@ target cameras. The runner checks one-to-one face similarity; it emits
 `liveness: null` and is deliberately separate from the login authorization path.
 The camera flow and a validated liveness check remain required to issue a
 staff session.
+
+Open `/staff/sign-in` on the HTTPS origin serving the Wave 2 backend. The UI
+uses the same-origin APIs and secure cookies. Complete the camera check in its
+own tab before continuing. Multi-assignment staff choose a workspace after
+verification. Ministry opens the protected preview. Temple opens a protected
+landing page while its operational modules are being integrated.
