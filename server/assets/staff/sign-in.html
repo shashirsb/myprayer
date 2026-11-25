@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Staff sign-in · Pray</title><link rel="stylesheet" href="/staff/sign-in.css"><script type="module" src="/staff/sign-in.js"></script>
+</head><body><header>pray<span aria-hidden="true"></span></header>
+<main>
+<h1>Staff sign-in</h1>
+<p id="status" role="status">Sign in to verify your identity and open your workspace.</p>
+<section id="first-factor">
+  <form id="password-form">
+    <label>Staff ID or email<input name="login" autocomplete="username" maxlength="160" required></label>
+    <label>Password<input name="password" type="password" autocomplete="current-password" maxlength="256" required></label>
+    <button>Continue with password</button>
+  </form>
+  <section id="demo-options" hidden>
+    <form id="otp-request"><label>Demo number<input name="phone" placeholder="demo-000001" required></label><button>Request demo code</button></form>
+    <form id="otp-verify" hidden><p id="demo-code"></p><label>Verification code<input name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" required></label><button>Verify code</button></form>
+  </section>
+</section>
+<section id="photo-step" hidden>
+  <h2>Photo verification</h2>
+  <p>Open the camera check in a new tab. Return here when the check is complete.</p>
+  <a id="capture" target="_blank" rel="noopener noreferrer">Open camera check</a>
+  <button id="finish-photo" type="button">Continue after photo check</button>
+</section>
+<section id="assignment-step" hidden>
+  <h2>Choose an assignment</h2>
+  <form id="assignment-form"><label>Role and scope<select name="assignment" required></select></label><button>Open workspace</button></form>
+</section>
+<button id="restart" type="button" hidden>Start over</button>
+</main></body></html>
