@@ -56,7 +56,7 @@ function fixture(development = false) {
     },
     async photoResult(id) { return photo.get(id)!; },
   };
-  return { access: makeAccess(store, providers, development, () => now), account, audit, photo, providers, now };
+  return { access: makeAccess(store, providers, development, () => new Date(now)), account, audit, photo, providers, now };
 }
 
 const scope = { institution: 'kabbalamma', station: 'counter-01' };
@@ -294,4 +294,35 @@ test('MyPrayer password and dummy OTP require photo verification and OTP is sing
   await assert.rejects(access.authorize(otp.attempt,'ticket.print',scope), {status:401});
   await assert.rejects(credentials.verifyOtp(demo.id,demo.demoCode!), {status:401});
   await assert.rejects(credentialService(store,'synthetic-test-key',false).requestOtp('demo-000001'), {status:404});
+});
+
+test('a password verifier may finish after the request started', async () => {
+  const {access, providers, now} = fixture();
+  const {attempt} = await access.startVerified(async () => {
+    now.setSeconds(now.getSeconds() + 1);
+    return providers.primary('delayed-password');
+  });
+  assert.ok((await access.complete(attempt)).session);
+});
+
+test('OpenCV challenges bind direction and enrollment to the consumed attempt', async () => {
+  const {localPhoto} = await import('../src/local-photo.ts');
+  const calls: string[][] = [];
+  const photo = localPhoto(new URL('https://staff.example.test'), '/references', async (path, direction) => {
+    calls.push([path, direction]);
+    return true;
+  });
+  const {id, captureUrl} = await photo.startPhoto('test', 'staff-1');
+  const direction = id.split(':')[0];
+  assert.equal(new URL(captureUrl).hash, '#camera-' + direction);
+  const attempt: Attempt = {id:'test', key:'key', primaryReceipt:'receipt', accountId:'operator',
+    enrollment:'staff-1', photoId:id, expiresAt:new Date(Date.now() + 1000)};
+  assert.equal((await photo.photoResult(id, attempt)).liveness, false);
+  assert.equal((await photo.photoResult(id, attempt, ['invalid','invalid'])).match, false);
+  assert.equal(calls.length, 0);
+  const frames = ['/9j/AA==','/9j/AQ=='];
+  assert.equal((await photo.photoResult(id, attempt, frames)).match, true);
+  assert.deepEqual(calls, [['/references/staff-1.jpg', direction]]);
+  await assert.rejects(photo.photoResult('different', attempt, frames));
+  await assert.rejects(photo.startPhoto('test', '../outside'));
 });

@@ -32,7 +32,7 @@ function respond(res: ServerResponse, status: number, body: object, cookies: str
   res.end(JSON.stringify(body));
 }
 
-async function json(req: IncomingMessage) {
+async function json(req: IncomingMessage, limit = 16384) {
   if (req.headers['content-type']?.split(';')[0].trim() !== 'application/json') {
     throw new AccessError(415, 'json_required');
   }
@@ -40,7 +40,7 @@ async function json(req: IncomingMessage) {
   let length = 0;
   for await (const chunk of req) {
     length += chunk.length;
-    if (length > 16384) throw new AccessError(413, 'request_too_large');
+    if (length > limit) throw new AccessError(413, 'request_too_large');
     chunks.push(chunk);
   }
   try {
@@ -62,6 +62,7 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
       const session = readCookie(req, staffCookie);
       const attempt = readCookie(req, attemptCookie);
 
+      if (req.method === 'GET' && path === '/') { res.writeHead(302, {location: '/staff/sign-in'}); return res.end(); }
       if (req.method === 'GET' && path === '/v1/staff-config') return respond(res, 200, { demoOtp: !!credentials && demoOtp });
       if (req.method === 'GET' && (path === '/staff/sign-in' || path === '/staff/sign-in.js' || path === '/staff/sign-in.css')) {
         const [file, type] = path.endsWith('.js') ? ['sign-in.js', 'text/javascript']
@@ -83,7 +84,9 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
           'content-security-policy': "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
         });
         return res.end('<!doctype html><html lang="en"><meta charset="utf-8"><title>Temple workspace · Pray</title><main><h1>Temple workspace</h1><p>Active assignment: ' +
-          text(active.role) + ' · ' + text(active.institution) + '</p><p>Operational modules are pending integration.</p></main></html>');
+          text(active.role) + ' · ' + text(active.institution) + '</p><h2>Assigned permissions</h2><ul>' +
+          active.permissions.map(permission => '<li>' + text(permission) + '</li>').join('') +
+          '</ul><a href="/staff/sign-in?manage">Manage assignment or sign out</a></main></html>');
       }
       if (req.method === 'GET' && (path === '/ministry' || path?.startsWith('/ministry/art/'))) {
         const { active } = await access.profile(session);
@@ -131,7 +134,16 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
           return respond(res, 200, { captureUrl: outcome.captureUrl }, [cookie(staffCookie), cookie(attemptCookie, outcome.attempt, attemptSeconds)]);
         }
         case '/v1/photo/complete': {
-          const outcome = await access.complete(attempt);
+          if (!attempt) throw new AccessError(401, 'photo_challenge_required');
+          let frames: string[] | undefined;
+          if (req.headers['content-type']?.split(';')[0] === 'application/json') {
+            const body = await json(req, 450000);
+            if (body.frames !== undefined) {
+              if (!Array.isArray(body.frames) || body.frames.length !== 2) throw new AccessError(400, 'invalid_capture');
+              frames = body.frames.map(value => field(value, 210000));
+            }
+          }
+          const outcome = await access.complete(attempt, frames);
           return respond(res, 200, { needsAssignment: outcome.needsAssignment }, [cookie(attemptCookie), cookie(staffCookie, outcome.session, sessionSeconds)]);
         }
         case '/v1/assignment': {

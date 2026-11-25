@@ -1,3 +1,4 @@
+import { localPhoto } from './local-photo.ts';
 import { MongoClient } from 'mongodb';
 import { credentialService, mongoCredentials } from './credentials.ts';
 import { makeAccess } from './access.ts';
@@ -17,12 +18,13 @@ async function launch() {
   if (!['development', 'staging', 'production'].includes(mode) || (mode === 'development' && process.env.NODE_ENV === 'production')) {
     throw new Error('Invalid deployment environment');
   }
-  const providers = httpsProviders(
+  const local = process.env.PHOTO_MODE === 'opencv';
+  const origin = httpsOrigin(required('PORTAL_ORIGIN'));
+  const providers = local ? localPhoto(origin, required('PHOTO_REFERENCE_DIR')) : httpsProviders(
     undefined,
     { url: httpsOrigin(required('PHOTO_PROVIDER_ORIGIN')), token: required('PHOTO_PROVIDER_TOKEN') },
     httpsOrigin(required('PHOTO_CAPTURE_ORIGIN')),
   );
-  const origin = httpsOrigin(required('PORTAL_ORIGIN'));
   const port = Number(process.env.PORT ?? '8080');
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid port');
   const db = new MongoClient(required('MONGODB_URI'), { serverSelectionTimeoutMS: 8000, retryWrites: true, writeConcern: { w: 'majority' } });

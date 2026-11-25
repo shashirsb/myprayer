@@ -43,7 +43,7 @@ export function ministryPage(assignment: MinistryAssignment, selectedId: string 
   </style></head><body>
   <header><a class="brand" href="/ministry">pray<span class="mark" aria-hidden="true"></span></a>
   <a class="${districts ? '' : 'active'}" href="/ministry">Overview</a><a class="${districts ? 'active' : ''}" href="/ministry?view=districts">Districts</a>
-  <a href="/ministry#modules">Modules</a></header>
+  <a href="/ministry#modules">Modules</a><a href="/staff/sign-in?manage">My assignment</a></header>
   <main><section class="hero"><img src="/ministry/art/hero" alt=""><p>Karnataka · HRI&amp;CE</p><h1>${title}</h1>
   <p class="note">Staging preview</p><p class="scope"><strong>Assigned scope:</strong> ${jurisdiction}</p></section>
   ${districts ? `<section class="district"><h2>Temples in scope</h2>${temples.length ? `<table><thead><tr><th scope="col">Temple</th><th scope="col">Inspection</th><th scope="col">Exceptions</th></tr></thead><tbody>${temples.map(item =>

@@ -150,3 +150,13 @@ export function roleDecision(assignment: Assignment, permission: string, resourc
   );
   return authority ? { authorityReference: authority.reference } : null;
 }
+
+export function developmentAssignments(institution: string, jurisdiction: string): Assignment[] {
+  const validFrom = new Date();
+  return Object.entries(roles).filter(([, permissions]) => permissions.length).map(([role, permissions]) => ({
+    id: role, role, institution, jurisdiction, permissions: [...permissions], validFrom,
+    ...(permissions.some(p => stationActions.has(p)) ? {station: 'development-counter'} : {}),
+    ...(assignedWorkRoles.has(role) ? {workOrderId: 'development-work-order'} : {}),
+    ...(permissions.some(p => caseActions.has(p)) ? {caseId: 'development-case'} : {}),
+  }));
+}
