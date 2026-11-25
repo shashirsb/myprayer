@@ -217,3 +217,40 @@ test('Ministry preview renders assigned modules and rejects an ungranted module 
   assert.match(ministryPage(profile, 'registry', true)!, /District oversight[\s\S]+Temples in scope[\s\S]+Close drawer/);
   assert.ok((await ministryImage('registry'))!.length > 0);
 });
+
+test('Ministry district pages list only scoped Atlas-shaped records and deny direct out-of-scope links', async t => {
+  const { oversightFilter } = await import('../src/oversight.ts');
+  const { access, account } = fixture();
+  account.assignments[0] = {
+    id: 'district', role: 'deputy-commissioner', permissions: ['oversight.jurisdiction.read'],
+    institution: 'district-office', jurisdiction: 'ka-district-a', validFrom: account.assignments[0].validFrom,
+  };
+  const records = [
+    { id:'temple-a', name:'Temple A', institution:'temple-a', jurisdiction:'ka-district-a', stateScope:'ka', inspection:'Due' as const, exceptions:2 },
+    { id:'temple-b', name:'Temple B', institution:'temple-b', jurisdiction:'ka-district-b', stateScope:'ka', inspection:'Current' as const, exceptions:0 },
+  ];
+  const {attempt} = await access.start('otp-district');
+  const {session} = await access.complete(attempt);
+  const server = accessServer(access, 'https://portal.example.test', {
+    async list(assignment) {
+      const scope = oversightFilter(assignment);
+      return scope ? records.filter(record => Object.entries(scope).every(([key, value]) => Reflect.get(record, key) === value)) : [];
+    },
+  }).listen(0, '127.0.0.1');
+  t.after(() => { server.close(); });
+  await once(server, 'listening');
+  const address = server.address();
+  assert.ok(address && typeof address !== 'string');
+  const base = 'http://127.0.0.1:' + address.port;
+  const get = (query: string) => fetch(base + '/ministry' + query, { headers: {cookie:'__Host-myp_session=' + session} });
+  const page = await get('?view=districts');
+  assert.equal(page.status, 200);
+  const html = await page.text();
+  assert.match(html, /Temple A/);
+  assert.doesNotMatch(html, /Temple B/);
+  const detail = await get('?view=districts&temple=temple-a');
+  assert.match(await detail.text(), /Inspection status: Due/);
+  assert.equal((await get('?view=districts&temple=temple-b')).status, 404);
+  assert.deepEqual(oversightFilter({institution:'ka', permissions:['oversight.state.read']}), {stateScope:'ka'});
+  assert.equal(oversightFilter({institution:'ka', permissions:['finance.oversight.read']}), null);
+});
