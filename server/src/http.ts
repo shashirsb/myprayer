@@ -71,7 +71,7 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
         res.writeHead(200, {
           'content-type': type + '; charset=utf-8', 'cache-control': 'no-store',
           'x-content-type-options': 'nosniff',
-          'content-security-policy': "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+          'content-security-policy': "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; media-src 'self' blob: mediastream:; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
         });
         return res.end(content);
       }

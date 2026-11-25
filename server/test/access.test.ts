@@ -326,3 +326,16 @@ test('OpenCV challenges bind direction and enrollment to the consumed attempt', 
   await assert.rejects(photo.photoResult('different', attempt, frames));
   await assert.rejects(photo.startPhoto('test', '../outside'));
 });
+
+test('trusted roster import caps role grants and retains contractor scope and expiration', async () => {
+  const {readRoster} = await import('../src/provision-staff.ts');
+  const a = {id:'contract',role:'works-contractor',institution:'temple',permissions:['work.order.submit'],
+    workOrderId:'order-1',validFrom:'2026-01-01T00:00:00Z',validUntil:'2026-06-01T00:00:00Z'};
+  const row = {personId:'p-1',login:'Inspector-1',enrollment:'enrolled-1',assignments:[a]};
+  const result = readRoster(row);
+  assert.equal(result.login,'inspector-1');
+  assert.equal(result.assignments[0].workOrderId,'order-1');
+  assert.ok(result.assignments[0].validUntil instanceof Date);
+  assert.throws(() => readRoster({...row,assignments:[a,a]}));
+  assert.throws(() => readRoster({...row,assignments:[{...a,permissions:['ticket.print']}]}));
+});

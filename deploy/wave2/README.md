@@ -19,3 +19,20 @@ unset test_password
 Open the visitor site and choose Staff login. Complete either the password or development OTP (demo-000001), allow the camera, follow both poses, and explicitly confirm a role. Use My assignment to switch between Ministry and Temple workspaces or to sign out. District records come from ministry_temple_summary.
 
 Test on the intended cameras with consenting subjects before operational use. Measure false matches, false rejections and presentation attacks against the application's thresholds. The model smoke check only verifies loading and inference. The UI and demo OTP do not establish the identity of a new enrollee. Enrollment and assignment of ordinary staff use the existing trusted administrative data process.
+
+## Provision staff and contractors
+
+A trusted roster administrator creates an account from an approved JSON file and the person's protected enrollment JPEG. A sample record is below. Keep actual rosters and photos outside the source tree. Supply bank, legal and other sensitive approval instruments through the approved authority process.
+
+```json
+{"personId":"worker-123","login":"worker123","enrollment":"ref-123","assignments":[{"id":"works-slip","role":"works-contractor","institution":"temple-key","workOrderId":"wo-123","permissions":["work.order.read","work.order.submit"],"validFrom":"2026-11-25T00:00:00Z","validUntil":"2026-12-31T23:59:59Z"}]}
+```
+
+Mount the approved file read-only into a one-off staff container and pipe the new password from a hidden prompt. Account and credential creation commit in a single Atlas transaction. Rotation and revocation use the existing staff administration process.
+
+```bash
+read -rsp 'New staff password: ' staff_password
+printf '%s' "$staff_password" | docker compose -f deploy/wave2/compose.yaml run --rm -T \
+  -v "$PWD/approved-roster.json:/run/approved-roster.json:ro" staff node src/provision-staff.ts /run/approved-roster.json
+unset staff_password
+```

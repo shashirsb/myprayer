@@ -17,3 +17,4 @@ jobs:
         working-directory: server
       - run: docker build -t myprayer-check server
       - run: docker run --rm myprayer-check /opt/vision/bin/python photo-model/smoke.py
+      - run: bash deploy/wave2/test-stack.sh
