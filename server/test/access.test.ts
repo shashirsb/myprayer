@@ -254,3 +254,35 @@ test('Ministry district pages list only scoped Atlas-shaped records and deny dir
   assert.deepEqual(oversightFilter({institution:'ka', permissions:['oversight.state.read']}), {stateScope:'ka'});
   assert.equal(oversightFilter({institution:'ka', permissions:['finance.oversight.read']}), null);
 });
+
+test('MyPrayer password and dummy OTP require photo verification and OTP is single-use', async () => {
+  const { credentialService, hashStaffPassword } = await import('../src/credentials.ts');
+  const { access, now } = fixture();
+  const staff = {
+    login:'operator', accountId:'operator', demoOtpPhone:'demo-000001',
+    passwordHash:await hashStaffPassword('test password for staging'),
+  };
+  const codes = new Map<string, {id:string;accountId:string;digest:string;expiresAt:Date}>();
+  const store: import('../src/credentials.ts').CredentialStore = {
+    async find(field, value) { return staff[field]===value ? staff : null; },
+    async limit() { return true; },
+    async issue(otp) { codes.set(otp.id,otp); },
+    async consume(id,digest,date) {
+      const otp=codes.get(id);
+      if (!otp || otp.digest!==digest || otp.expiresAt<=date) return null;
+      codes.delete(id);
+      return otp;
+    },
+  };
+  const credentials=credentialService(store, 'synthetic-test-key', true, () => now);
+  await assert.rejects(credentials.password('operator','incorrect'), {status:401});
+  const {attempt}=await access.startVerified(() => credentials.password('operator','test password for staging'));
+  await assert.rejects(access.authorize(attempt,'ticket.print',scope), {status:401});
+  const demo=await credentials.requestOtp('demo-000001');
+  assert.match(demo.demoCode!, /^\d{6}$/);
+  assert.notEqual(codes.get(demo.id)?.digest,demo.demoCode);
+  const otp=await access.startVerified(() => credentials.verifyOtp(demo.id,demo.demoCode!));
+  await assert.rejects(access.authorize(otp.attempt,'ticket.print',scope), {status:401});
+  await assert.rejects(credentials.verifyOtp(demo.id,demo.demoCode!), {status:401});
+  await assert.rejects(credentialService(store,'synthetic-test-key',false).requestOtp('demo-000001'), {status:404});
+});
