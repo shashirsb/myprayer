@@ -1,14 +1,9 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
 
-export type Scope = { institution: string; station?: string };
-export type Assignment = Scope & {
-  id: string;
-  role: string;
-  permissions: string[];
-  validFrom: Date;
-  validUntil?: Date;
-  revoked?: boolean;
-};
+import { assignmentWorkspace, grantedPermissions, policyVersion, roleDecision } from './roles.ts';
+import type { Assignment, Resource } from './roles.ts';
+export type { Assignment, Scope } from './roles.ts';
+
 export type Account = {
   id: string;
   personId: string;
@@ -36,6 +31,11 @@ export type Audit = {
   reason?: string;
   actor?: string;
   assignmentId?: string;
+  permission?: string;
+  institution?: string;
+  station?: string;
+  policyVersion?: string;
+  authorityReference?: string;
 };
 export type PhotoEvidence = { attemptId: string; photoId: string; enrollment: string; liveness: boolean; match: boolean };
 export interface Providers {
@@ -67,7 +67,7 @@ const keyOf = (value: string) => createHash('sha256').update(value).digest('hex'
 const token = () => randomBytes(32).toString('base64url');
 const after = (date: Date, seconds: number) => new Date(date.getTime() + seconds * 1000);
 const openAssignments = (account: Account, now: Date) => account.assignments.filter(
-  item => !item.revoked && item.validFrom <= now && (!item.validUntil || item.validUntil > now),
+  item => !item.revoked && item.validFrom <= now && (!item.validUntil || item.validUntil > now) && grantedPermissions(item).length > 0,
 );
 
 export function makeAccess(store: Store, providers: Providers, development: boolean, clock = () => new Date()) {
@@ -144,8 +144,10 @@ export function makeAccess(store: Store, providers: Providers, development: bool
     },
     async profile(raw: string) {
       const { assignment, assignments } = await context(raw);
-      const summary = ({ id, role, institution, station }: Assignment) => ({ id, role, institution, station });
-      return { active: assignment ? { ...summary(assignment), permissions: assignment.permissions } : null, assignments: assignments.map(summary) };
+      const summary = ({ id, role, institution, jurisdiction, station, shift }: Assignment) => ({
+        id, role, workspace: assignmentWorkspace(role), institution, jurisdiction, station, shift,
+      });
+      return { active: assignment ? { ...summary(assignment), permissions: grantedPermissions(assignment) } : null, assignments: assignments.map(summary) };
     },
     async select(raw: string, assignmentId: string) {
       const { account, session, assignments } = await context(raw);
@@ -158,13 +160,17 @@ export function makeAccess(store: Store, providers: Providers, development: bool
       }
       return next;
     },
-    async authorize(raw: string, permission: string, resource: Scope) {
+    async authorize(raw: string, permission: string, resource: Resource) {
       const { account, session, assignment } = await context(raw);
-      if (!assignment || !assignment.permissions.includes(permission) || assignment.institution !== resource.institution ||
-          (assignment.station !== undefined && assignment.station !== resource.station)) {
+      const decision = assignment && roleDecision(assignment, permission, resource, account.personId, clock());
+      if (!assignment || !decision) {
         return deny(session.attemptId, 'authorization', 403, 'permission_denied', account.personId);
       }
-      await record({ attemptId: session.attemptId, actor: account.personId, event: 'authorization', outcome: 'allowed', assignmentId: assignment.id });
+      await record({
+        attemptId: session.attemptId, actor: account.personId, event: 'authorization', outcome: 'allowed',
+        assignmentId: assignment.id, permission, institution: assignment.institution,
+        station: assignment.station, policyVersion, authorityReference: decision.authorityReference,
+      });
       return { actor: account.personId, assignment };
     },
     async logout(raw: string, pending = '') {
