@@ -32,6 +32,8 @@ export type Resource = Scope & {
 };
 
 const roles: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  'ministry-finance-reviewer': ['finance.oversight.read'],
+  'ministry-auditor': ['audit.read', 'audit.export'],
   'state-oversight-reader': ['oversight.state.read'],
   'department-secretariat': ['oversight.state.read', 'government.case.draft', 'government.case.route'],
   'hrice-commissioner': ['oversight.state.read', 'government.case.review', 'government.case.decide'],
@@ -87,7 +89,7 @@ const roles: Readonly<Record<string, readonly string[]>> = Object.freeze({
 });
 
 const ministryRoles = new Set([
-  'state-oversight-reader', 'department-secretariat', 'hrice-commissioner', 'state-parishat-member',
+  'ministry-finance-reviewer', 'ministry-auditor', 'state-oversight-reader', 'department-secretariat', 'hrice-commissioner', 'state-parishat-member',
   'deputy-commissioner', 'assistant-commissioner', 'district-parishat-member', 'jurisdiction-reviewer',
   'sanctioner', 'registry-operator', 'registry-approver', 'inspector',
 ]);
@@ -99,7 +101,7 @@ export function assignmentWorkspace(role: string): 'ministry' | 'temple' {
 const caseActions = new Set([
   'government.case.draft', 'government.case.route', 'government.case.review', 'government.case.decide',
   'governance.case.read', 'governance.case.vote', 'governance.case.sign', 'audit.read', 'audit.export',
-  'audit.finding.record', 'audit.finding.close', 'tender.evaluate', 'tender.award', 'support.request.resolve',
+  'audit.finding.record', 'audit.finding.close', 'finance.oversight.read', 'tender.evaluate', 'tender.award', 'support.request.resolve',
 ]);
 const authorityActions = new Set([
   'government.case.decide', 'governance.case.sign', 'registry.approve', 'staff.assignment.approve',
