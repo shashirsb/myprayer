@@ -1,3 +1,4 @@
+import type { credentialService } from './credentials.ts';
 import type { OversightStore } from './oversight.ts';
 import { ministryImage, ministryPage } from './ministry.ts';
 import { createServer } from 'node:http';
@@ -53,7 +54,7 @@ function field(value: unknown, max: number) {
   return value;
 }
 
-export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin: string, oversight?: OversightStore) {
+export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin: string, oversight?: OversightStore, credentials?: ReturnType<typeof credentialService>) {
   const server = createServer(async (req, res) => {
     try {
       const path = req.url?.split('?')[0];
@@ -84,6 +85,21 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
       if (req.headers.origin !== portalOrigin) throw new AccessError(403, 'origin_denied');
 
       switch (path) {
+        case '/v1/otp/request': {
+          if (!credentials) throw new AccessError(404, 'not_found');
+          const body = await json(req);
+          return respond(res, 200, await credentials.requestOtp(field(body.phone, 40)));
+        }
+        case '/v1/otp/verify':
+        case '/v1/password': {
+          if (!credentials) throw new AccessError(404, 'not_found');
+          const body = await json(req);
+          const outcome = await access.startVerified(() => path === '/v1/password'
+            ? credentials.password(field(body.login, 160), field(body.password, 256))
+            : credentials.verifyOtp(field(body.id, 40), field(body.code, 6)));
+          await access.logout(session, attempt);
+          return respond(res, 200, { captureUrl: outcome.captureUrl }, [cookie(staffCookie), cookie(attemptCookie, outcome.attempt, attemptSeconds)]);
+        }
         case '/v1/sign-in': {
           const body = await json(req);
           const outcome = await access.start(field(body.proof, 12000));
