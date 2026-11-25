@@ -48,3 +48,11 @@ Development test accounts require photo verification and explicit assignment sel
 ### Staging acceptance
 
 Connect the real first-factor and photo gateways and wire the portal sign-in, camera and role-selection screens. Test real provider responses and Atlas indexes in a staging environment. Wire business handlers to server-side resource lookup and scope checks, including a separate fresh operator verification for counter printing. Verify enrollment, revocation, station/shift rules and the appearance of audit events before enabling production staff access.
+
+### Role catalogue and workspaces
+
+Assignments store the stable role identifiers in `src/roles.ts` and an explicit subset of permitted actions. The role template caps the assignment's grants. Staff with multiple assignments select one active assignment, and changing it rotates the session.
+
+The session response identifies the workspace for each assignment. **Temple** covers local temple operations and workforce access. **Ministry** covers departmental and jurisdictional oversight and assigned government cases. Jurisdiction aggregate access is checked independently of case and temple operations. Project-core membership has no operational grants.
+
+Each protected business handler must resolve institution, jurisdiction, station, shift, case and work order from server-side records. Sensitive approvals additionally need their own current authority instrument, any applicable amount limit, and a different underlying initiator. The generic access check intentionally takes only institution and station and cannot grant access to approvals that require trusted case or authority context. The catalogue does not establish statutory authority. Load approved authority instruments and routing for the target institutions before enabling those actions.
