@@ -21,7 +21,7 @@ Provide an isolated MongoDB Atlas database. The service creates indexes for acco
 | `MYPRAYER_ENVIRONMENT` | `development`, `staging` or `production` |
 | `MONGODB_URI`, `MONGODB_DB` | Connection secret and database name |
 | `PORTAL_ORIGIN` | HTTPS origin shared by the frontend and its reverse-proxied API |
-| `PRIMARY_PROVIDER_ORIGIN`, `PRIMARY_PROVIDER_TOKEN` | First-factor gateway HTTPS origin and service token |
+| `STAFF_CREDENTIAL_HMAC_KEY` | At least 32 bytes of random secret material for keyed credential limits and demo OTP digests |
 | `PHOTO_PROVIDER_ORIGIN`, `PHOTO_PROVIDER_TOKEN` | Photo verification gateway HTTPS origin and service token |
 | `PHOTO_CAPTURE_ORIGIN` | Approved HTTPS origin for the camera flow |
 | `PORT` | Listening port, default 8080 |
@@ -30,13 +30,11 @@ Run `npm start` after connecting the gateways. The service expects a TLS-termina
 
 ### Gateway contracts
 
-The primary gateway resolves the login identifier to an enrolled account and performs password or single-use OTP verification. The portal gets an opaque proof only after first-factor verification. The access service sends the proof to `POST /v1/verify-proof` with a service bearer token. Success returns `accountId`, `method` (`password` or `otp`), `authenticatedAt` (ISO 8601), and a unique per-authentication `receipt`. The MyPrayer service accepts a proof authenticated within the last minute and records the hashed receipt to prevent replay.
-
 The photo gateway accepts `{attemptId, enrollment}` at `POST /v1/photo-challenges` and returns `{id, captureUrl}`. It binds the resulting fresh camera session to the enrolled person and attempt. After the camera flow completes, the service requests `POST /v1/photo-results` with `{id}`. The result contains `{attemptId, photoId, enrollment, liveness, match}`. Only completed, successful liveness and one-to-one match results for the same attempt can create a session. Keep reference photos and biometric templates within the photo service. The access service receives only the opaque enrollment reference and verification outcome.
 
 ### Portal contract
 
-- `POST /v1/sign-in` accepts `{proof}` and returns the capture URL with a short-lived challenge cookie.
+- `POST /v1/password` and development-only `POST /v1/otp/verify` return the capture URL with a short-lived challenge cookie.
 - `POST /v1/photo/complete` checks server-side evidence after the camera flow and returns a staff session cookie.
 - `GET /v1/session` returns the current assignment and available assignments.
 - `POST /v1/assignment` accepts `{assignment}` and rotates the session token on confirmation.
@@ -64,3 +62,36 @@ The protected staging preview at `GET /ministry` reads the active Ministry assig
 The staging container uses the `server/` directory as its build context. Build it with `docker build -t myprayer-access ./server`. Configure secrets at runtime. The image defaults to production mode and rejects development test accounts.
 
 The Ministry district view reads bounded summaries from `ministry_temple_summary`. An authorized import writes `id`, `name`, `institution`, `jurisdiction`, `stateScope`, `inspection` (Due or Current) and `exceptions` (nonnegative count). Use stable, globally namespaced jurisdiction IDs and the assigned state scope key. Keep personal and financial details in their own approved evidence systems. The current table displays up to 100 summaries per scope. Direct temple links resolve only from the same scoped result set. State and district scopes never come from URL parameters.
+
+### MyPrayer password and demo OTP
+
+The access service verifies passwords internally via `POST /v1/password` with
+`{login,password}`. Store lowercase login identifiers in `staff_credentials`,
+linked to `staff_accounts.id`. Use `hashStaffPassword` from `src/credentials.ts`
+when provisioning a credential. Set `STAFF_CREDENTIAL_HMAC_KEY` via the
+deployment secret store. The previous external first-factor proof endpoint
+is disabled in the configured service.
+
+Development only, a synthetic account may have a unique `demoOtpPhone` like
+`demo-000001`. Call `POST /v1/otp/request` with `{phone}`, then
+`POST /v1/otp/verify` with `{id,code}` from that same challenge. No SMS is sent.
+Both password and demo OTP return a photo challenge. They cannot create a
+staff session on their own. Production and staging reject the demo OTP
+routes.
+
+### Local face comparison trial
+
+Install OpenCV with DNN face bindings and obtain the YuNet and SFace ONNX
+files from the OpenCV Zoo. Run the model only with consenting test fixtures.
+
+```sh
+python3 photo-model/match.py --detector models/yunet.onnx \
+  --recognizer models/sface.onnx --reference fixture-reference.jpg \
+  --capture fixture-capture.jpg
+```
+
+The default threshold is for demonstration and must be evaluated on the
+target cameras. The runner checks one-to-one face similarity; it emits
+`liveness: null` and is deliberately separate from the login authorization path.
+The camera flow and a validated liveness check remain required to issue a
+staff session.
