@@ -132,6 +132,7 @@ test('HTTP requires a complete staff session and a same-origin POST', async t =>
     method: 'POST', headers: {'content-type':'application/json', origin:requestOrigin, cookie}, body: JSON.stringify(body),
   });
   assert.equal((await post('/v1/sign-in', {proof:'otp-proof'}, '', 'https://elsewhere.example.test')).status, 403);
+  assert.equal((await fetch(base + '/ministry')).status, 401);
   const start = await post('/v1/sign-in', {proof:'otp-proof'});
   assert.equal(start.status, 200);
   const challenge = start.headers.getSetCookie().find(header => header.startsWith('__Host-myp_attempt='))!;
@@ -141,6 +142,7 @@ test('HTTP requires a complete staff session and a same-origin POST', async t =>
   assert.equal(finish.status, 200);
   const session = finish.headers.getSetCookie().find(header => header.startsWith('__Host-myp_session='))!.split(';')[0];
   assert.equal((await post('/v1/access/check', {permission:'ticket.print', ...scope}, session)).status, 200);
+  assert.equal((await fetch(base + '/ministry', {headers:{cookie:session}})).status, 403);
   assert.equal((await post('/v1/sign-out', {}, session)).status, 200);
   assert.equal((await post('/v1/access/check', {permission:'ticket.print', ...scope}, session)).status, 401);
 });
@@ -203,4 +205,15 @@ test('a contractor can submit evidence for the assigned work order only', async 
   await access.authorize(session, 'work.order.submit', {institution: 'kabbalamma', workOrderId: 'works-01'});
   await assert.rejects(access.authorize(session, 'work.order.submit', {institution: 'kabbalamma', workOrderId: 'works-02'}), {status: 403});
   await assert.rejects(access.authorize(session, 'ticket.print', scope), {status: 403});
+});
+
+test('Ministry preview renders assigned modules and rejects an ungranted module URL', async () => {
+  const { ministryPage, ministryImage } = await import('../src/ministry.ts');
+  const profile = { role:'deputy-commissioner', institution:'district', jurisdiction:'district-a',
+    permissions:['oversight.jurisdiction.read'] };
+  assert.match(ministryPage(profile, null, false)!, /Ministry oversight[\s\S]+Temple registry/);
+  assert.doesNotMatch(ministryPage(profile, null, false)!, /Finance oversight/);
+  assert.equal(ministryPage(profile, 'finance', false), null);
+  assert.match(ministryPage(profile, 'registry', true)!, /District oversight[\s\S]+Temples in scope[\s\S]+Close drawer/);
+  assert.ok((await ministryImage('registry'))!.length > 0);
 });
