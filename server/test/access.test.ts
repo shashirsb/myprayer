@@ -150,7 +150,10 @@ test('HTTP requires a complete staff session and a same-origin POST', async t =>
   assert.equal((await post('/v1/access/check', {permission:'ticket.print', ...scope}, session)).status, 200);
   const temple = await fetch(base + '/temple', {headers:{cookie:session}});
   assert.equal(temple.status, 200);
-  assert.match(await temple.text(), /print-operator/);
+  assert.match(await temple.text(), /Print operator/);
+  const area = await fetch(base + '/temple?area=ticket', {headers:{cookie:session}});
+  assert.match(await area.text(), /Ticket print/);
+  assert.equal((await fetch(base + '/temple?area=refund', {headers:{cookie:session}})).status, 404);
   assert.equal((await fetch(base + '/ministry', {headers:{cookie:session}})).status, 403);
   assert.equal((await post('/v1/sign-out', {}, session)).status, 200);
   assert.equal((await post('/v1/access/check', {permission:'ticket.print', ...scope}, session)).status, 401);

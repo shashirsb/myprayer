@@ -1,0 +1,8 @@
+:root{font:17px Georgia,serif;color:#211f19;background:#faf9f5}*{box-sizing:border-box}body{margin:0}
+a{color:inherit}header{background:white;display:flex;align-items:center;gap:2rem;border-bottom:1px solid #bcb8ad;padding:.8rem 5vw}
+.brand{font-size:2rem;font-weight:700;text-decoration:none}.brand span{display:inline-block;margin-left:.3rem;width:1.2rem;height:.7rem;background:linear-gradient(#eed21c 50%,#c3272f 50%)}
+nav{display:flex;gap:1rem;flex-wrap:wrap}main{max-width:70rem;margin:2rem auto;padding:0 5vw}h1{font-size:clamp(2rem,5vw,3.6rem);margin:.3rem 0 1rem}h2{margin:1.6rem 0 .7rem}.institution{color:#585448}
+dl{display:grid;grid-template-columns:max-content 1fr;gap:.5rem 1rem}dt{color:#5b574e}dd{margin:0;overflow-wrap:anywhere}
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr));gap:.8rem}.areas a{background:white;border:1px solid #cbc6b9;padding:1rem;border-radius:.5rem;text-decoration:none}.areas small{display:block;margin-top:.4rem}
+aside{position:fixed;inset:0 0 0 auto;width:max-content;min-width:min(24rem,100%);max-width:100%;overflow:auto;background:white;border-left:1px solid #b7b3a7;padding:2rem;box-shadow:-.3rem 0 1rem #0002}
+li{padding:.3rem}a:focus-visible{outline:3px solid #936e00}

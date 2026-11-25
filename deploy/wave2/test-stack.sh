@@ -13,13 +13,13 @@ cleanup() {
 }
 trap cleanup EXIT
 mkdir "$MYPRAYER_ENROLLMENTS"
-touch "$MYPRAYER_ENROLLMENTS/fixture.jpg"
+docker run --rm myprayer-check /opt/vision/bin/python -c 'import cv2,numpy as np,sys; sys.stdout.buffer.write(cv2.imencode(".jpg",np.zeros((320,320,3),np.uint8))[1].tobytes())' > "$MYPRAYER_ENROLLMENTS/fixture.jpg"
 cat > "$MYPRAYER_ENV_FILE" <<ENV
 MYPRAYER_ENVIRONMENT=development
 NODE_ENV=development
 MONGODB_URI=mongodb://myp-ci-mongo:27017/?replicaSet=rs0
 MONGODB_DB=ci_staff
-PORTAL_ORIGIN=https://portal.example.test
+PORTAL_ORIGIN=https://localhost:9443
 STAFF_CREDENTIAL_HMAC_KEY=$(openssl rand -hex 32)
 ENV
 docker tag myprayer-check mypci-staff
@@ -43,7 +43,7 @@ export CI_STAFF_PASSWORD=$(openssl rand -hex 24)
 printf '%s' "$CI_STAFF_PASSWORD" | "${compose[@]}" exec -T staff node src/provision-tester.ts tester fixture temple district
 node --input-type=module <<'JS'
 import assert from 'node:assert/strict';
-const origin = 'https://portal.example.test';
+const origin = 'https://localhost:9443';
 const base = 'http://127.0.0.1:8080';
 const get = path => fetch(base + path);
 const post = (path, body, cookie = '') => fetch(base + path, {method:'POST',headers:{origin,cookie,'content-type':'application/json'},body:JSON.stringify(body)});
@@ -62,3 +62,8 @@ assert.match(otp.demoCode,/^\d{6}$/);
 assert.equal((await post('/v1/otp/verify',{id:otp.id,code:otp.demoCode})).status,200);
 assert.equal((await post('/v1/otp/verify',{id:otp.id,code:otp.demoCode})).status,401);
 JS
+
+openssl req -x509 -newkey rsa:2048 -nodes -keyout "$tmp/key.pem" -out "$tmp/cert.pem" -days 1 -subj /CN=localhost >/dev/null 2>&1
+npm install --prefix "$tmp" --no-audit --no-fund puppeteer-core@24
+cp deploy/wave2/test-browser.mjs "$tmp/"
+CHROME_BIN=$(command -v google-chrome) node "$tmp/test-browser.mjs"

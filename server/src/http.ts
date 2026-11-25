@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { credentialService } from './credentials.ts';
 import type { OversightStore } from './oversight.ts';
+import { templePage } from './temple.ts';
 import { ministryImage, ministryPage } from './ministry.ts';
 import { createServer } from 'node:http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -64,9 +65,9 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
 
       if (req.method === 'GET' && path === '/') { res.writeHead(302, {location: '/staff/sign-in'}); return res.end(); }
       if (req.method === 'GET' && path === '/v1/staff-config') return respond(res, 200, { demoOtp: !!credentials && demoOtp });
-      if (req.method === 'GET' && (path === '/staff/sign-in' || path === '/staff/sign-in.js' || path === '/staff/sign-in.css')) {
+      if (req.method === 'GET' && (path === '/staff/sign-in' || path === '/staff/sign-in.js' || path === '/staff/sign-in.css' || path === '/staff/temple.css')) {
         const [file, type] = path.endsWith('.js') ? ['sign-in.js', 'text/javascript']
-          : path.endsWith('.css') ? ['sign-in.css', 'text/css'] : ['sign-in.html', 'text/html'];
+          : path.endsWith('.css') ? [path.slice('/staff/'.length), 'text/css'] : ['sign-in.html', 'text/html'];
         const content = await readFile(new URL('../assets/staff/' + file, import.meta.url));
         res.writeHead(200, {
           'content-type': type + '; charset=utf-8', 'cache-control': 'no-store',
@@ -78,15 +79,14 @@ export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin
       if (req.method === 'GET' && path === '/temple') {
         const { active } = await access.profile(session);
         if (active?.workspace !== 'temple') throw new AccessError(403, 'temple_assignment_required');
-        const text = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+        const selected = new URLSearchParams(req.url?.split('?')[1]).get('area');
+        const content = templePage(active, selected);
+        if (!content) return respond(res, 404, {error:'not_found'});
         res.writeHead(200, {
           'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store',
-          'content-security-policy': "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+          'content-security-policy': "default-src 'none'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'",
         });
-        return res.end('<!doctype html><html lang="en"><meta charset="utf-8"><title>Temple workspace · Pray</title><main><h1>Temple workspace</h1><p>Active assignment: ' +
-          text(active.role) + ' · ' + text(active.institution) + '</p><h2>Assigned permissions</h2><ul>' +
-          active.permissions.map(permission => '<li>' + text(permission) + '</li>').join('') +
-          '</ul><a href="/staff/sign-in?manage">Manage assignment or sign out</a></main></html>');
+        return res.end(content);
       }
       if (req.method === 'GET' && (path === '/ministry' || path?.startsWith('/ministry/art/'))) {
         const { active } = await access.profile(session);

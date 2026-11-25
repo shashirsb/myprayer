@@ -146,8 +146,8 @@ export function makeAccess(store: Store, providers: Providers, development: bool
     },
     async profile(raw: string) {
       const { assignment, assignments } = await context(raw);
-      const summary = ({ id, role, institution, jurisdiction, station, shift }: Assignment) => ({
-        id, role, workspace: assignmentWorkspace(role), institution, jurisdiction, station, shift,
+      const summary = ({ id, role, institution, jurisdiction, station, shift, caseId, workOrderId }: Assignment) => ({
+        id, role, workspace: assignmentWorkspace(role), institution, jurisdiction, station, shift, caseId, workOrderId,
       });
       return { active: assignment ? { ...summary(assignment), permissions: grantedPermissions(assignment) } : null, assignments: assignments.map(summary) };
     },
