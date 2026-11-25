@@ -154,7 +154,11 @@ function overviewPage() {
         `<li><button type="button" data-action="attention" data-index="${i}">${title}${i === 0 ? '<span class="exception" aria-label="Requires attention">!</span>' : ''}</button></li>`).join('')}</ul></section>
       <section><h2>Today’s schedule</h2><ul>${schedule.map(([time, title], i) =>
         `<li><button type="button" data-action="schedule" data-index="${i}"><strong>${time}</strong><span>${title}</span></button></li>`).join('')}</ul></section>
-    </div>`;
+    </div>
+    <section class="mock-workspace overview-modules" aria-labelledby="overview-modules-title">
+      <h2 class="ruled-title" id="overview-modules-title">Modules</h2>
+      ${moduleCards()}
+    </section>`;
 }
 
 function illustratedCard(title, description, image, attrs) {
@@ -163,10 +167,14 @@ function illustratedCard(title, description, image, attrs) {
   </button>`;
 }
 
+function moduleCards() {
+  return `<div class="illustrated-grid">${modules.map((m, i) =>
+    illustratedCard(m.title, m.desc, 'module-' + (i + 1) + '.jpg', `data-route="module/${i}"`)).join('')}</div>`;
+}
+
 function moduleDirectory() {
   return `<div class="mock-workspace"><h1>Temple services</h1><p class="module-lead">${temple}</p>
-    <div class="illustrated-grid">${modules.map((m, i) =>
-      illustratedCard(m.title, m.desc, 'module-' + (i + 1) + '.jpg', `data-route="module/${i}"`)).join('')}</div></div>`;
+    ${moduleCards()}</div>`;
 }
 
 function arrivalsTable() {
