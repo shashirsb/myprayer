@@ -1,0 +1,20 @@
+name: Wave 2 application checks
+on:
+  pull_request:
+    paths: ['server/**', 'deploy/wave2/**', 'site/portal.js', '.github/workflows/wave2-checks.yml']
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci && npm run check && npm test
+        working-directory: server
+      - run: docker build -t myprayer-check server
+      - run: docker run --rm myprayer-check /opt/vision/bin/python photo-model/smoke.py
+      - run: bash deploy/wave2/test-stack.sh

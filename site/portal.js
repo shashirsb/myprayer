@@ -281,6 +281,10 @@ function adminPage(index) {
 
 function render() {
   const [name, arg] = route.split('/');
+  if (document.querySelector('meta[name="myprayer-staff-service"]') && !['visit', 'search', 'service'].includes(name)) {
+    location.replace('/staff/sign-in');
+    return;
+  }
   const index = Number(arg);
   const titles = {visit: 'Temple visit', login: 'Staff login', home: 'Temple overview', modules: 'Temple services', module: modules[index]?.title,
     print: 'Print e-ticket', search: 'Temple directory', service: visitorServices[index], admin: 'Administration'};

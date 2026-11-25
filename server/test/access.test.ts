@@ -56,7 +56,7 @@ function fixture(development = false) {
     },
     async photoResult(id) { return photo.get(id)!; },
   };
-  return { access: makeAccess(store, providers, development, () => now), account, audit, photo, providers, now };
+  return { access: makeAccess(store, providers, development, () => new Date(now)), account, audit, photo, providers, now };
 }
 
 const scope = { institution: 'kabbalamma', station: 'counter-01' };
@@ -150,7 +150,10 @@ test('HTTP requires a complete staff session and a same-origin POST', async t =>
   assert.equal((await post('/v1/access/check', {permission:'ticket.print', ...scope}, session)).status, 200);
   const temple = await fetch(base + '/temple', {headers:{cookie:session}});
   assert.equal(temple.status, 200);
-  assert.match(await temple.text(), /print-operator/);
+  assert.match(await temple.text(), /Print operator/);
+  const area = await fetch(base + '/temple?area=ticket', {headers:{cookie:session}});
+  assert.match(await area.text(), /Ticket print/);
+  assert.equal((await fetch(base + '/temple?area=refund', {headers:{cookie:session}})).status, 404);
   assert.equal((await fetch(base + '/ministry', {headers:{cookie:session}})).status, 403);
   assert.equal((await post('/v1/sign-out', {}, session)).status, 200);
   assert.equal((await post('/v1/access/check', {permission:'ticket.print', ...scope}, session)).status, 401);
@@ -294,4 +297,48 @@ test('MyPrayer password and dummy OTP require photo verification and OTP is sing
   await assert.rejects(access.authorize(otp.attempt,'ticket.print',scope), {status:401});
   await assert.rejects(credentials.verifyOtp(demo.id,demo.demoCode!), {status:401});
   await assert.rejects(credentialService(store,'synthetic-test-key',false).requestOtp('demo-000001'), {status:404});
+});
+
+test('a password verifier may finish after the request started', async () => {
+  const {access, providers, now} = fixture();
+  const {attempt} = await access.startVerified(async () => {
+    now.setSeconds(now.getSeconds() + 1);
+    return providers.primary('delayed-password');
+  });
+  assert.ok((await access.complete(attempt)).session);
+});
+
+test('OpenCV challenges bind direction and enrollment to the consumed attempt', async () => {
+  const {localPhoto} = await import('../src/local-photo.ts');
+  const calls: string[][] = [];
+  const photo = localPhoto(new URL('https://staff.example.test'), '/references', async (path, direction) => {
+    calls.push([path, direction]);
+    return true;
+  });
+  const {id, captureUrl} = await photo.startPhoto('test', 'staff-1');
+  const direction = id.split(':')[0];
+  assert.equal(new URL(captureUrl).hash, '#camera-' + direction);
+  const attempt: Attempt = {id:'test', key:'key', primaryReceipt:'receipt', accountId:'operator',
+    enrollment:'staff-1', photoId:id, expiresAt:new Date(Date.now() + 1000)};
+  assert.equal((await photo.photoResult(id, attempt)).liveness, false);
+  assert.equal((await photo.photoResult(id, attempt, ['invalid','invalid'])).match, false);
+  assert.equal(calls.length, 0);
+  const frames = ['/9j/AA==','/9j/AQ=='];
+  assert.equal((await photo.photoResult(id, attempt, frames)).match, true);
+  assert.deepEqual(calls, [['/references/staff-1.jpg', direction]]);
+  await assert.rejects(photo.photoResult('different', attempt, frames));
+  await assert.rejects(photo.startPhoto('test', '../outside'));
+});
+
+test('trusted roster import caps role grants and retains contractor scope and expiration', async () => {
+  const {readRoster} = await import('../src/provision-staff.ts');
+  const a = {id:'contract',role:'works-contractor',institution:'temple',permissions:['work.order.submit'],
+    workOrderId:'order-1',validFrom:'2026-01-01T00:00:00Z',validUntil:'2026-06-01T00:00:00Z'};
+  const row = {personId:'p-1',login:'Inspector-1',enrollment:'enrolled-1',assignments:[a]};
+  const result = readRoster(row);
+  assert.equal(result.login,'inspector-1');
+  assert.equal(result.assignments[0].workOrderId,'order-1');
+  assert.ok(result.assignments[0].validUntil instanceof Date);
+  assert.throws(() => readRoster({...row,assignments:[a,a]}));
+  assert.throws(() => readRoster({...row,assignments:[{...a,permissions:['ticket.print']}]}));
 });

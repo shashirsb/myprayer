@@ -18,13 +18,19 @@
 </section>
 <section id="photo-step" hidden>
   <h2>Photo verification</h2>
-  <p>Open the camera check in a new tab. Return here when the check is complete.</p>
+  <div id="external-camera"><p>Open the camera check in a new tab. Return here when the check is complete.</p>
   <a id="capture" target="_blank" rel="noopener noreferrer">Open camera check</a>
-  <button id="finish-photo" type="button">Continue after photo check</button>
+  <button id="finish-photo" type="button">Continue after photo check</button></div>
+  <div id="local-camera" hidden>
+    <video id="preview" playsinline muted aria-label="Live camera preview"></video>
+    <p id="instruction" role="status">Allow camera access, then look directly at the camera.</p>
+    <button id="frame" type="button">Start camera</button>
+  </div>
 </section>
 <section id="assignment-step" hidden>
   <h2>Choose an assignment</h2>
   <form id="assignment-form"><label>Role and scope<select name="assignment" required></select></label><button>Open workspace</button></form>
 </section>
 <button id="restart" type="button" hidden>Start over</button>
+<button id="logout" type="button" hidden>Sign out</button>
 </main></body></html>

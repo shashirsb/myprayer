@@ -2,6 +2,8 @@
 
 This Wave 2 service manages staff sign-in challenges, scoped sessions and access decisions. It runs separately from the currently deployed static portal. The integration tests use synthetic provider evidence and an in-memory store.
 
+For the integrated visitor and staff portal, built-in camera verifier, model checks, and development tester setup, see [Run the Wave 2 portal](../deploy/wave2/README.md). The external gateway configuration below is also supported.
+
 ## Run the checks
 
 Use Node.js 22.18 or later.

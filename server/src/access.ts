@@ -41,7 +41,7 @@ export type PhotoEvidence = { attemptId: string; photoId: string; enrollment: st
 export interface Providers {
   primary(proof: string): Promise<PrimaryProof>;
   startPhoto(attemptId: string, enrollment: string): Promise<{ id: string; captureUrl: string }>;
-  photoResult(id: string): Promise<PhotoEvidence>;
+  photoResult(id: string, attempt?: Attempt, frames?: string[]): Promise<PhotoEvidence>;
 }
 export interface Store {
   account(id: string): Promise<Account | null>;
@@ -95,11 +95,11 @@ export function makeAccess(store: Store, providers: Providers, development: bool
   }
   async function start(firstFactor: () => Promise<PrimaryProof>) {
       const id = randomUUID();
-      const now = clock();
       const primary = await firstFactor().catch((error: unknown) =>
         deny(id, 'first_factor', error instanceof AccessError ? error.status : 503,
           error instanceof AccessError && error.status < 500 ? error.message : 'first_factor_unavailable'),
       );
+      const now = clock();
       if (!['password', 'otp'].includes(primary.method) || !(primary.authenticatedAt <= now && primary.authenticatedAt > after(now, -60))) {
         return deny(id, 'first_factor', 401, 'fresh_first_factor_required');
       }
@@ -121,12 +121,12 @@ export function makeAccess(store: Store, providers: Providers, development: bool
   return {
     start: (proof: string) => start(() => providers.primary(proof)),
     startVerified: start,
-    async complete(raw: string) {
+    async complete(raw: string, frames?: string[]) {
       const attempt = raw && await store.consumeAttempt(keyOf(raw), clock());
       if (!attempt) throw new AccessError(401, 'photo_challenge_required');
       const account = await eligibleAccount(attempt.accountId);
       if (!account || account.enrollment !== attempt.enrollment) return deny(attempt.id, 'photo', 403, 'photo_enrollment_changed');
-      const evidence = await providers.photoResult(attempt.photoId).catch(() =>
+      const evidence = await providers.photoResult(attempt.photoId, attempt, frames).catch(() =>
         deny(attempt.id, 'photo', 503, 'photo_provider_unavailable', account.personId),
       );
       if (evidence.attemptId !== attempt.id || evidence.photoId !== attempt.photoId || evidence.enrollment !== attempt.enrollment ||
@@ -146,8 +146,8 @@ export function makeAccess(store: Store, providers: Providers, development: bool
     },
     async profile(raw: string) {
       const { assignment, assignments } = await context(raw);
-      const summary = ({ id, role, institution, jurisdiction, station, shift }: Assignment) => ({
-        id, role, workspace: assignmentWorkspace(role), institution, jurisdiction, station, shift,
+      const summary = ({ id, role, institution, jurisdiction, station, shift, caseId, workOrderId }: Assignment) => ({
+        id, role, workspace: assignmentWorkspace(role), institution, jurisdiction, station, shift, caseId, workOrderId,
       });
       return { active: assignment ? { ...summary(assignment), permissions: grantedPermissions(assignment) } : null, assignments: assignments.map(summary) };
     },
