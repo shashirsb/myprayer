@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import type { credentialService } from './credentials.ts';
 import type { OversightStore } from './oversight.ts';
 import { ministryImage, ministryPage } from './ministry.ts';
@@ -54,13 +55,36 @@ function field(value: unknown, max: number) {
   return value;
 }
 
-export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin: string, oversight?: OversightStore, credentials?: ReturnType<typeof credentialService>) {
+export function accessServer(access: ReturnType<typeof makeAccess>, portalOrigin: string, oversight?: OversightStore, credentials?: ReturnType<typeof credentialService>, demoOtp = false) {
   const server = createServer(async (req, res) => {
     try {
       const path = req.url?.split('?')[0];
       const session = readCookie(req, staffCookie);
       const attempt = readCookie(req, attemptCookie);
 
+      if (req.method === 'GET' && path === '/v1/staff-config') return respond(res, 200, { demoOtp: !!credentials && demoOtp });
+      if (req.method === 'GET' && (path === '/staff/sign-in' || path === '/staff/sign-in.js' || path === '/staff/sign-in.css')) {
+        const [file, type] = path.endsWith('.js') ? ['sign-in.js', 'text/javascript']
+          : path.endsWith('.css') ? ['sign-in.css', 'text/css'] : ['sign-in.html', 'text/html'];
+        const content = await readFile(new URL('../assets/staff/' + file, import.meta.url));
+        res.writeHead(200, {
+          'content-type': type + '; charset=utf-8', 'cache-control': 'no-store',
+          'x-content-type-options': 'nosniff',
+          'content-security-policy': "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'",
+        });
+        return res.end(content);
+      }
+      if (req.method === 'GET' && path === '/temple') {
+        const { active } = await access.profile(session);
+        if (active?.workspace !== 'temple') throw new AccessError(403, 'temple_assignment_required');
+        const text = (value: string) => value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+        res.writeHead(200, {
+          'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store',
+          'content-security-policy': "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+        });
+        return res.end('<!doctype html><html lang="en"><meta charset="utf-8"><title>Temple workspace · Pray</title><main><h1>Temple workspace</h1><p>Active assignment: ' +
+          text(active.role) + ' · ' + text(active.institution) + '</p><p>Operational modules are pending integration.</p></main></html>');
+      }
       if (req.method === 'GET' && (path === '/ministry' || path?.startsWith('/ministry/art/'))) {
         const { active } = await access.profile(session);
         if (active?.workspace !== 'ministry') throw new AccessError(403, 'ministry_assignment_required');
