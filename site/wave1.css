@@ -87,6 +87,7 @@ body.view-module #nav .right { border: 0; }
 .module-lead { color: #424242; font-size: clamp(17px, 1.48vw, 23px); margin-top: 8px; }
 .mock-workspace .primary, .photo-drawer .primary { border-radius: 8px; background: #202020; padding: 10px 23px; font-size: clamp(16px, 1.45vw, 22px); font-weight: 600; white-space: nowrap; }
 .illustrated-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: clamp(22px, 3.7vw, 56px); }
+.overview-modules .illustrated-grid { margin-top: 16px; }
 .illustrated-card { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; width: 100%; border: 1px solid #c3c3c3; border-radius: 15px; background: #fff; padding: 7px 9px 11px; text-align: left; color: var(--ink); }
 .illustrated-card:hover { border-color: #656565; box-shadow: 0 1px 7px #0001; }
 .illustrated-card img { display: block; width: 100%; aspect-ratio: 2.03; object-fit: cover; border-radius: 9px; }
