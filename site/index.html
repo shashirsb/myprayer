@@ -1,0 +1,202 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>myPrayer · Wave 1</title><style>
+:root{--ink:#111;--line:#bdbdbd;--gold:#ead321;--paper:#fff}*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--paper);color:var(--ink)}body,button,input,select{font-family:Georgia,'Times New Roman',serif}body{font-size:16px}button,input,select{font-size:inherit}button{cursor:pointer}a{color:inherit}h1,h2,h3,p{margin:0}h1{font-size:37px;line-height:1.13}h2{font-size:28px}h3{font-size:23px}p{line-height:1.24}#nav{height:64px;border-bottom:1px solid #aaa;display:flex;align-items:center;gap:0;padding:0 34px;background:white}#brand{font-size:33px;font-weight:bold;letter-spacing:-1.8px;margin-right:58px;text-decoration:none}#nav .navlink{height:100%;display:inline-flex;align-items:center;gap:9px;border:0;border-bottom:4px solid transparent;background:none;padding:10px 23px 6px;font-size:19px;text-decoration:none}#nav .navlink.active{border-bottom-color:var(--gold)}#nav .divider{height:25px;border-left:1px solid #999}#nav .right{margin-left:auto}#nav .black{background:#101010;color:white;border:0;padding:11px 19px;font-size:18px}.avatar{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#e4e4e4;font-size:18px}.dropdown{position:relative;height:100%}.menu{position:absolute;display:none;top:100%;left:0;z-index:10;min-width:260px;background:white;border:1px solid #bbb;box-shadow:0 12px 25px #0002;padding:7px}.dropdown.open .menu{display:block}.menu button{width:100%;display:block;background:white;border:0;text-align:left;padding:10px 14px}.menu button:hover{background:#f3f3f3}#page{min-height:calc(100vh - 64px)}.page-wrap{padding:23px 35px 50px}.muted{color:#414141}.feature-hero{height:610px;position:relative;display:flex;align-items:center;overflow:hidden;border-bottom:1px solid #bbb}.hero-art{position:absolute;right:0;top:0;width:55%;height:100%;object-fit:cover;object-position:center;z-index:0;mask-image:linear-gradient(to right,transparent 0%,black 22%)}.hero-copy{position:relative;z-index:1;margin-left:5%;width:55%}.eyebrow{font-size:24px;margin-bottom:30px}.feature-hero h1{font-size:56px;margin-bottom:16px;letter-spacing:-1.2px}.feature-hero p{font-size:25px;margin-bottom:55px}.search-row{display:flex;gap:10px;max-width:650px}.search-row input{width:78%;border:1px solid #aaa;padding:15px 18px}.primary{background:#000;color:white;border:1px solid #000;padding:12px 26px}.featured{margin:40px 36px 0;padding-bottom:29px;border-bottom:1px solid #aaa;display:flex;gap:38px;align-items:center}.featured img{width:340px;height:225px;object-fit:cover}.red{color:#a81719}.featured h2{font-size:37px;margin:6px 0 33px}.featured-links{display:flex;flex-wrap:wrap;gap:0}.featured-links button{background:none;border:0;border-right:1px solid #aaa;padding:5px 29px;font-size:21px}.featured-links button:first-child{padding-left:0}.featured-links button:last-child{border-right:0}.featured-links button:hover{text-decoration:underline}.login-grid{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 64px)}.login-art{width:100%;height:100%;max-height:950px;object-fit:cover;object-position:center}.login-form{display:flex;flex-direction:column;justify-content:center;padding:60px clamp(45px,7vw,130px)}.login-form h1{font-size:44px;font-weight:normal;margin-bottom:16px}.login-form .sub{font-size:20px;margin-bottom:46px}.field-label{display:block;font-size:17px;margin:0 0 10px}.field{width:100%;height:56px;padding:10px 13px;border:1px solid #aaa;margin-bottom:27px}.password-wrap{position:relative}.password-wrap .field{padding-right:55px}.eye{position:absolute;right:10px;top:5px;background:none;border:0;padding:10px}.login-submit{width:100%;height:57px;margin:12px 0 33px;font-size:19px}.login-footer{display:flex;justify-content:space-between;gap:20px;font-size:16px}.login-footer button{border:0;background:none;text-decoration:underline;padding:0}.workspace{padding:21px 30px 55px}.workspace h1{font-size:39px}.workspace .lead{font-size:22px;margin:7px 0 32px}.modules-grid,.tools-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;margin-top:30px}.module-card,.tool-card{padding:9px 9px 15px;border:1px solid #ccc;border-radius:13px;background:#fff;text-align:left;width:100%;overflow:hidden}.module-card:hover,.tool-card:hover{border-color:#222;box-shadow:0 0 0 1px #333}.module-card img,.tool-card img{display:block;width:100%;aspect-ratio:1.94/1;object-fit:cover;object-position:center;filter:grayscale(1)}.card-title{font-size:28px;font-weight:bold;display:block;margin:7px 12px 3px}.card-desc{font-size:20px;display:block;margin:0 12px;line-height:1.14;min-height:45px}.crumb{font-size:18px;margin:0 0 7px}.crumb button{border:0;background:none;padding:0;text-decoration:none}.crumb button:hover{text-decoration:underline}.module-heading{display:flex;align-items:center;justify-content:space-between;gap:20px}.module-heading .lead{margin:0}.ticket-metrics{border:1px solid #888;border-radius:6px;display:grid;grid-template-columns:repeat(4,1fr);margin-top:24px;padding:12px 0}.ticket-metrics>div{padding:0 10%;border-right:1px solid #aaa;font-size:20px}.ticket-metrics>div:last-child{border:0}.ticket-metrics strong{display:block;font-size:35px}.tools-heading{margin:20px 0 11px}.tools-grid{gap:15px 20px;margin:0}.tool-card{padding:0 0 16px;border-radius:11px}.tool-card img{aspect-ratio:2.45/1}.tool-card .card-title{margin-top:4px}.tool-card .card-desc{min-height:20px}.section-title{font-size:27px;margin:22px 0 10px}.data-table{width:100%;border-collapse:collapse;text-align:left;font-size:19px}.data-table th{background:#e4e4e4}.data-table th,.data-table td{border-bottom:1px solid #ccc;padding:9px 22px}.data-table{border:1px solid #ccc}.rowbutton{border:0;background:transparent;text-decoration:underline;padding:0}.pill{border:1px solid #bbb;background:#ececec;border-radius:30px;padding:1px 16px;font-size:16px}.dim{color:#555}.overlay{position:fixed;inset:0;background:#0005;z-index:20}.drawer{position:fixed;top:0;bottom:0;right:0;background:white;z-index:21;box-shadow:-18px 0 40px #0003;overflow:auto;padding:25px 30px 40px;width:min(var(--drawer-width,580px),100vw)}.drawer-head{display:flex;align-items:center;gap:10px;padding-bottom:17px;border-bottom:1px solid #bbb;margin-bottom:22px}.drawer-head button{background:white;border:1px solid #bbb;padding:7px 13px}.drawer-head .close{margin-left:auto}.drawer h2{font-size:35px;margin:0 0 17px}.drawer h3{margin:24px 0 13px}.drawer p{font-size:20px;margin:10px 0}.drawer img{width:100%;max-height:250px;object-fit:cover;filter:grayscale(1);border-radius:5px}.drawer .field{height:45px;font-size:18px}.drawer button:not(.close):not(.back){font-size:18px}.drawer .action-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}.drawer .button-secondary{border:1px solid #888;background:white;padding:11px 17px}.notice{background:#f6f6f6;border-left:3px solid var(--gold);padding:12px 16px}.preview-ticket{border:1px dashed #999;padding:25px;margin:20px 0;text-align:center}.preview-ticket strong{font-size:23px}.status-line{border-top:1px solid #ddd;padding:12px 0;font-size:19px}.mini-choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}.mini-choices button{border:1px solid #999;background:white;padding:14px;text-align:left}button:focus-visible,input:focus-visible{outline:3px solid #b59d00;outline-offset:3px}@media(max-width:920px){#nav{padding:0 15px}#brand{margin-right:10px}.navlink{padding-inline:10px!important;font-size:16px!important}.feature-hero h1{font-size:40px}.feature-hero p{font-size:20px}.featured{margin:20px}.featured img{width:240px}.modules-grid,.tools-grid{gap:12px}.card-title{font-size:21px}.card-desc{font-size:16px}.login-form{padding:35px}.login-form h1{font-size:40px}}@media(max-width:650px){#nav{height:auto;min-height:62px;flex-wrap:wrap;gap:5px}.navlink{height:46px!important}.feature-hero{height:550px;align-items:flex-end;padding-bottom:40px}.hero-art{width:100%;height:65%;object-position:top;mask-image:linear-gradient(to bottom,black 50%,transparent 100%)}.hero-copy{margin:0 20px;width:auto}.feature-hero h1{font-size:37px}.eyebrow{margin-bottom:12px}.feature-hero p{margin-bottom:22px}.featured{align-items:flex-start;flex-direction:column}.featured img{width:100%}.featured-links{gap:12px}.featured-links button{border:0;padding:4px!important}.login-grid{grid-template-columns:1fr}.login-art{height:260px}.login-form{padding:34px 24px}.modules-grid,.tools-grid{grid-template-columns:1fr}.workspace{padding:20px}.ticket-metrics{grid-template-columns:repeat(2,1fr)}.ticket-metrics>div{padding:10px;border-bottom:1px solid #aaa}.ticket-metrics>div:nth-child(2){border-right:0}.data-table{font-size:14px}.data-table th,.data-table td{padding:7px}.drawer{padding:20px}}
+
+/* Mockup-aligned layout adjustments (1536x1024 visual reference) */
+body.visit #nav,body.login #nav{height:102px;padding:0 48px}
+body.staff #nav{height:78px;padding:0 38px}
+body.visit #brand,body.login #brand{font-size:48px;letter-spacing:-2px}
+body.staff #brand{font-size:33px;margin-right:65px}
+body.visit #nav .navlink,body.login #nav .navlink{font-size:21px;padding-inline:28px}
+body.visit #nav .black,body.login #nav .black{font-size:20px;padding:13px 22px;margin-left:18px}
+body.visit .feature-hero{height:610px}
+body.visit .hero-copy{margin-left:3.45%;width:58%}
+body.visit .feature-hero h1{font-size:54px}
+body.visit .feature-hero .eyebrow{font-size:22px;margin-bottom:29px}
+body.visit .feature-hero p{font-size:24px}
+body.visit .featured{margin:0 38px;padding:49px 7px 28px;gap:36px}
+body.visit .featured img{width:335px;height:225px}
+body.visit .featured>div{border-left:1px solid #aaa;padding-left:36px;min-height:215px}
+body.visit .featured h2{font-size:36px}
+body.visit .featured-links button{font-size:20px;padding-right:32px}
+body.visit .search-row input{font-size:20px}
+body.visit .search-row .primary{font-size:20px}
+body.staff .workspace{padding:36px 27px 55px}
+body.staff .workspace h1{font-size:38px}
+body.staff .workspace .lead{font-size:20px;margin:10px 8px 24px}
+body.staff .modules-grid{gap:30px 24px;margin-top:36px}
+body.staff .module-card{padding:10px 10px 15px;border-radius:15px}
+body.staff .module-card .card-title{font-size:25px;margin:6px 14px 3px}
+body.staff .module-card .card-desc{font-size:18px;margin:0 14px}
+body.staff #nav .navlink{font-size:19px;padding-inline:27px}
+body.staff #nav .dropdown:last-child .navlink{background:#eee;border-radius:50%;width:52px;height:52px;padding:0;justify-content:center;margin-right:0}
+@media(max-width:900px){body.visit #nav,body.login #nav,body.staff #nav{height:auto;min-height:72px;padding:8px 16px}body.visit #brand,body.login #brand{font-size:36px}body.visit .hero-copy{margin-left:4%;width:92%}body.visit .feature-hero h1{font-size:45px}body.visit .featured{margin:20px 15px;padding:10px}body.visit .featured>div{border-left:0;padding-left:0}}
+
+body.visit .hero-copy{transform:translateY(-26px)}
+body.login .login-form{padding-left:102px;padding-right:57px}
+body.login .login-form h1{font-weight:600}
+body.login .login-form{transform:translateY(-68px)}
+body.login .login-grid{padding-top:23px}
+body.login #nav .navlink.active{border-bottom:3px solid #e6bd00}
+body.staff .module-card img{aspect-ratio:1.91/1}
+body.ticket #nav{height:50px;padding:0 34px;border-bottom:1px solid #111}
+body.ticket #brand{font-size:33px;margin-right:52px}
+body.ticket #nav .navlink{font-size:19px;padding:6px 21px 3px}
+body.ticket .workspace{padding:10px 23px 35px}
+body.ticket .workspace h1{font-size:29px}
+body.ticket .workspace .lead{font-size:18px;margin:2px 8px}
+body.ticket .ticket-metrics{margin-top:20px;padding:8px 0}
+body.ticket .ticket-metrics strong{font-size:25px}
+body.ticket .tools-heading{margin:18px 4px 12px;font-size:24px}
+body.ticket .tool-card .card-title{font-size:20px}
+body.ticket .tool-card .card-desc{font-size:16px}
+body.ticket .tool-card{padding-bottom:13px}
+body.ticket .section-title{margin:16px 0 9px}
+.icon{display:block;width:1em;height:1em;flex:none}
+.search-row{max-width:646px;margin-top:8px}
+.search-field{position:relative;flex:1;min-width:0}
+.search-field .icon{position:absolute;top:50%;left:17px;transform:translateY(-50%);pointer-events:none}
+.search-field input{width:100%;padding-left:45px}
+.search-row .primary{min-width:144px}
+.featured-links button{display:inline-flex;align-items:center;gap:10px}
+.featured-links .icon{width:1.4em;height:1.4em}
+.eye{top:9px;min-width:38px;min-height:38px;display:grid;place-items:center}
+.ticket-metrics>div,.data-table,.crumb{font-size:16px}
+.drawer h2{font-size:29px}
+@media(max-width:900px){
+  body.login .login-form{padding:44px 24px;transform:none}
+  body.visit .featured-links button{font-size:17px;padding:6px 10px}
+}
+@media(max-width:600px){
+  body.login .login-grid{grid-template-columns:1fr;padding-top:0}
+  body.login .login-art{height:220px}
+  body.login .login-form h1{font-size:36px}
+  body.visit .feature-hero h1{font-size:38px}
+  .search-row .primary{min-width:0;padding-inline:16px}
+}
+
+/* Keep more of the portal visible without changing the card and drawer flows. */
+body.visit #nav,body.login #nav,body.staff #nav{
+  height:64px;padding-inline:24px
+}
+body.ticket #nav{height:46px}
+body.visit #brand,body.login #brand{font-size:40px}
+body.staff #brand{margin-right:34px}
+body.visit #nav .navlink,body.login #nav .navlink,body.staff #nav .navlink{
+  padding-inline:16px
+}
+body.visit #nav .black,body.login #nav .black{padding:8px 14px;margin-left:12px}
+body.staff #nav .dropdown:last-child .navlink{width:40px;height:40px;padding:0}
+body.visit .feature-hero{height:clamp(340px,48vw,465px)}
+body.visit .hero-copy{transform:none}
+body.visit .feature-hero .eyebrow{margin-bottom:16px}
+body.visit .feature-hero h1{margin-bottom:10px}
+body.visit .feature-hero p{margin-bottom:24px}
+body.visit .search-row{max-width:510px;margin-top:0}
+body.visit .search-row input{padding-block:10px}
+body.visit .search-row .primary{min-width:100px;padding:9px 16px}
+body.visit .featured{margin-inline:24px;padding:20px 0;gap:24px}
+body.visit .featured img{width:220px;height:143px}
+body.visit .featured>div{min-height:0;padding-left:24px}
+body.visit .featured h2{margin-bottom:12px}
+body.visit .featured-links button{padding-right:16px}
+body.login .login-grid{min-height:0;padding-top:14px}
+body.login .login-art{height:clamp(420px,62vh,630px)}
+body.login .login-form{
+  padding:30px clamp(24px,5vw,76px);
+  transform:none
+}
+.login-form .sub{margin-bottom:24px}
+.login-form .field{height:44px;margin-bottom:16px}
+.login-form .field-label{margin-bottom:6px}
+.login-form .eye{top:2px;min-width:40px;min-height:40px}
+.login-submit{height:44px;margin:8px 0 16px}
+body.staff .workspace{padding:20px 24px 32px}
+body.staff .workspace .lead{margin:6px 0 14px}
+body.staff .modules-grid{gap:14px 16px;margin-top:16px}
+body.staff .module-card{padding:6px 6px 10px;border-radius:10px}
+body.staff .module-card img{aspect-ratio:2.4/1}
+body.staff .module-card .card-title{margin:5px 8px 2px}
+body.staff .module-card .card-desc{min-height:0;margin:0 8px}
+body.ticket .workspace{padding:9px 24px 28px}
+body.ticket .workspace .lead{margin:2px 0}
+body.ticket .module-heading .primary{padding:8px 16px}
+body.ticket .ticket-metrics{margin-top:12px;padding:6px 0}
+body.ticket .tools-heading{margin:12px 0 8px}
+body.ticket .tools-grid{gap:10px 12px}
+body.ticket .tool-card{padding-bottom:8px;border-radius:8px}
+body.ticket .tool-card img{aspect-ratio:2.95/1}
+body.ticket .tool-card .card-title{margin:4px 10px 2px}
+body.ticket .tool-card .card-desc{margin:0 10px}
+body.ticket .section-title{margin:12px 0 6px;font-size:22px}
+.data-table th,.data-table td{padding:6px 12px}
+.drawer{padding:18px 22px 28px}
+.drawer-head{padding-bottom:10px;margin-bottom:14px}
+@media(max-width:900px){
+  body.visit #nav,body.login #nav,body.staff #nav{
+    min-height:54px;height:auto;flex-wrap:wrap;padding:4px 12px
+  }
+  body.visit #brand,body.login #brand,body.staff #brand{margin-right:14px}
+  body.visit #nav .navlink,body.login #nav .navlink,body.staff #nav .navlink{
+    padding-inline:10px;font-size:16px
+  }
+  body.visit #nav .black,body.login #nav .black{font-size:16px;margin-left:8px}
+  body.staff .modules-grid,body.ticket .tools-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:600px){
+  body.visit #nav .divider,body.login #nav .divider{display:none}
+  body.visit .feature-hero{height:auto;min-height:330px}
+  body.visit .hero-art{opacity:.38;width:72%}
+  body.visit .featured{margin-inline:12px;gap:14px;align-items:flex-start}
+  body.visit .featured img{width:min(30%,145px);height:auto;aspect-ratio:3/2}
+  body.visit .featured>div{padding-left:0}
+  body.visit .featured h2{font-size:25px}
+  body.login .login-art{height:175px}
+  body.login .login-form{padding:22px 18px}
+  body.staff .workspace,body.ticket .workspace{padding-inline:12px}
+  body.staff .module-card .card-title{font-size:20px}
+  body.staff .module-card .card-desc{font-size:16px}
+  body.ticket .ticket-metrics{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:8px}
+  body.ticket .ticket-metrics>div:nth-child(2){border-right:0}
+}
+</style></head><body><header id="nav"></header><main id="page"></main><div id="drawer-root"></div><script>
+const modules=[{title:'Ticketing',desc:'Issue and manage darshana, seva and special entry tickets for devotees.',tools:['Manage availability','Issue e-tickets','Print tickets','Validate admission','Manage refunds','Reconcile sales']},{title:'Fund collection',desc:'Record donations, issue receipts and track all temple collections.',tools:['Record donation','Issue receipt','Collection register']},{title:'Accommodation',desc:'Manage temple rooms and guest stays, from booking to check-out.',tools:['Room availability','Guest booking','Guest check-in','Guest check-out','Housekeeping','Maintenance']},{title:'Sevas & rituals',desc:'Schedule, conduct and manage sevas, poojas and other temple rituals.',tools:['Seva schedule','Seva bookings','Ritual register']},{title:'Annadana & meals',desc:'Plan and run annadana, manage meal service and track daily meal counts.',tools:['Meal planning','Meal service','Daily meal counts']},{title:'Facilities',desc:'Manage temple facilities, maintenance requests and day-to-day upkeep.',tools:['Facility register','Maintenance requests','Work orders']}];
+const ticketDesc=['Set times and ticket limits.','Create and share a digital ticket.','Give visitors a paper copy.','Check tickets and record entry.','Review cancellations and refunds.','Match ticket sales with payments.'];
+let route='visit',drawerStack=[],currentMenu='',signedIn=false,searchTerm='',ticketPrinted=false;
+const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+const asset=n=>'assets/'+n;
+const iconPaths = {
+  search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18"/>',
+  meal: '<path d="M3 13h18a9 9 0 0 1-18 0Zm5-3c-2-2 2-3 0-6m4 6c-2-2 2-3 0-6m4 6c-2-2 2-3 0-6"/>',
+  pin: '<path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+  eye: '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="2.5"/>',
+  eyeOff: '<path d="M3 3l18 18M10.5 6.1a13 13 0 0 1 1.5-.1c6.5 0 10 6 10 6a14 14 0 0 1-3 3.4M6.2 7.8A17 17 0 0 0 2 12s3.5 6 10 6a11 11 0 0 0 3.6-.6"/>',
+};
+function icon(name) {
+  return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${iconPaths[name]}</svg>`;
+}
+function togglePassword(button) {
+  const password = document.getElementById('password');
+  const reveal = password.type === 'password';
+  password.type = reveal ? 'text' : 'password';
+  button.setAttribute('aria-label', reveal ? 'Hide password' : 'Show password');
+  button.innerHTML = icon(reveal ? 'eyeOff' : 'eye');
+}
+function go(to){route=to;drawerStack=[];currentMenu='';location.hash=to;render();scrollTo(0,0)}
+function navButton(text,path,active=false){return `<button class="navlink ${active?'active':''}" onclick="go('${path}')">${text}</button>`}
+function dropdown(label,items,active=false){const key=label.replaceAll(' ','-');return `<div class="dropdown ${currentMenu===key?'open':''}"><button class="navlink ${active?'active':''}" aria-expanded="${currentMenu===key}" onclick="currentMenu=currentMenu==='${key}'?'':'${key}';renderNav()">${label}⌄</button><div class="menu">${items.map(([name,path])=>`<button onclick="go('${path}')">${name}</button>`).join('')}</div></div>`}
+function renderNav(){
+ const staff=!['visit','login'].includes(route);
+ const base=`<a id="brand" href="#${staff?'home':'visit'}">${staff?'myprayer':'pray'}</a>`;
+ const account=`<span class="right"></span>`+dropdown('EO',[['Role: Executive Officer','admin/1'],['Sign out','visit']]);
+ const staffNav=navButton('Overview','home',route==='home')+dropdown('Modules',modules.map((m,i)=>[m.title,'module/'+i]),route.startsWith('module'))+dropdown('Administration',[['Organisation','admin/0'],['Users and roles','admin/1'],['Photo verification','admin/2']])+account;
+ const publicNav=`<span class="right"></span>`+dropdown('Visit a temple',[['Kabbalamma Temple','visit'],['Temple directory','search']],route==='visit')+`<span class="divider"></span>`+dropdown('Services',[['Darshan timings','service/0'],['Sevas and meals','service/1'],['Access and directions','service/2']])+`<span class="divider"></span>`+dropdown('Help',[['Visitor help','service/3']])+`<span class="divider"></span>`+(route==='login'?navButton('Staff login','login',true):`<button class="black" onclick="go('login')">Staff login</button>`);
+ document.getElementById('nav').innerHTML=base+(staff?staffNav:publicNav);
+}
+function render(){document.body.className=(['visit','login'].includes(route)?route:(route==='module/0'?'staff ticket':'staff'));renderNav();let html='';const [page,arg]=route.split('/');let pageEl=document.getElementById('page');if(page==='visit'){html=`<section class="feature-hero"><img class="hero-art" src="${asset('temple-hero.jpg')}" alt="Monochrome temple gateway"><div class="hero-copy"><p class="eyebrow">Karnataka temple portal</p><h1>Plan your temple visit</h1><p>Find darshan timings, sevas and visitor facilities.</p><form class="search-row" onsubmit="event.preventDefault();searchTerm=document.getElementById('temple-search').value;go('search')"><label class="search-field">${icon('search')}<input id="temple-search" name="temple" aria-label="Temple or location" placeholder="Temple or location"></label><button class="primary">Search</button></form></div></section><section class="featured"><img src="${asset('temple-feature.jpg')}" alt="Temple exterior"><div><strong class="red">Featured</strong><h2>Kabbalamma Temple</h2><div class="featured-links"><button onclick="openDrawer('Darshan timings','service',0)">${icon('calendar')}<span>Darshan timings ›</span></button><button onclick="openDrawer('Sevas and meals','service',1)">${icon('meal')}<span>Sevas and meals ›</span></button><button onclick="openDrawer('Access and directions','service',2)">${icon('pin')}<span>Access and directions ›</span></button></div></div></section>`}else if(page==='login'){html=`<div class="login-grid"><img class="login-art" src="${asset('temple-login.jpg')}" alt="Black and white temple stone carvings"><section class="login-form"><h1>Staff login</h1><p class="sub">Sign in to your assigned temple workspace.</p><form onsubmit="event.preventDefault();signedIn=true;go('home')"><label class="field-label" for="staff-id">Staff ID or email</label><input class="field" id="staff-id" autocomplete="username" placeholder="" required><label class="field-label" for="password">Password</label><div class="password-wrap"><input class="field" id="password" type="password" autocomplete="current-password" required><button class="eye" type="button" aria-label="Show password" onclick="togglePassword(this)">${icon('eye')}</button></div><button class="primary login-submit">Sign in</button></form><div class="login-footer"><button onclick="openDrawer('Forgot password?','generic','Contact the temple administrator to recover your staff account. Authentication is simulated during Wave 1.')">Forgot password?</button><button onclick="go('visit')">Return to temple portal</button></div></section></div>`}else if(page==='home'){html=`<div class="workspace"><h1>Temple operations</h1><p class="lead muted">Manage core temple services, collections, pilgrim amenities and facility upkeep.</p><hr style="border:0;border-top:1px solid #ccc"><section class="modules-grid">${modules.map((m,i)=>`<button class="module-card" onclick="go('module/${i}')"><img src="${asset('module-'+(i+1)+'.jpg')}" alt="${esc(m.title)} illustration"><span class="card-title">${m.title}</span><span class="card-desc">${m.desc}</span></button>`).join('')}</section></div>`}else if(page==='module'){const m=modules[Number(arg)]||modules[0];const idx=Number(arg)||0;html=`<div class="workspace"><div class="crumb"><button onclick="go('home')">Modules</button> / ${idx===0?'E-ticketing':m.title}</div><div class="module-heading"><div><h1>${idx===0?'E-ticketing':m.title}</h1><p class="lead">Kabbalamma Temple</p></div>${idx===0?`<button class="primary" onclick="openDrawer('Issue e-tickets','ticket',1)">Issue ticket</button>`:''}</div>${idx===0?`<div class="ticket-metrics">${[['Tickets issued','248'],['Admitted','172'],['Slots available','56'],['Refunds pending','3']].map(([a,b])=>`<div>${a}<strong>${b}</strong></div>`).join('')}</div>`:''}<h2 class="tools-heading">${idx===0?'Ticketing tools':m.title+' tools'}</h2><section class="tools-grid">${m.tools.map((t,i)=>`<button class="tool-card" onclick="openDrawer('${esc(t)}',${idx===0?"'ticket'":"'module'"},${idx===0?i:`'${idx}:${i}'`})"><img src="${asset(idx===0?'ticket-'+(i+1)+'.jpg':'module-'+(idx+1)+'.jpg')}" alt="${esc(t)} illustration"><span class="card-title">${t}</span><span class="card-desc">${idx===0?ticketDesc[i]:'View and manage '+t.toLowerCase()+'.'}</span></button>`).join('')}</section>${idx===0?`<h2 class="section-title">Recent tickets</h2><table class="data-table"><thead><tr><th>Ticket ID</th><th>Service</th><th>Channel</th><th>Status</th></tr></thead><tbody>${[['KT458763','Darshan','Online','Admitted'],['KT458762','Darshan','Counter','Issued']].map(r=>`<tr><td><button class="rowbutton" onclick="openDrawer('Ticket ${r[0]}','record','${r[0]}')">${r[0]}</button></td><td>${r[1]}</td><td>${r[2]}</td><td><span class="pill">${r[3]}</span></td></tr>`).join('')}</tbody></table>`:''}</div>`}else if(page==='search'){html=`<div class="workspace"><h1>Temple directory</h1><p class="lead">${searchTerm?'Search for '+esc(searchTerm):'Explore temples'}</p><button class="module-card" style="max-width:480px" onclick="openDrawer('Kabbalamma Temple','service',0)"><img src="${asset('temple-feature.jpg')}" alt="Kabbalamma Temple"><span class="card-title">Kabbalamma Temple</span><span class="card-desc">Darshan timings · Sevas · Visitor information</span></button></div>`}else if(page==='service'){html=`<div class="workspace"><h1>${['Darshan timings','Sevas and meals','Access and directions','Visitor help'][Number(arg)]||'Visitor services'}</h1><p class="lead">Kabbalamma Temple</p><button class="primary" onclick="openDrawer('Visitor information','service',${Number(arg)||0})">View details</button></div>`}else{html=`<div class="workspace"><h1>${['Organisation','Users and roles','Photo verification'][Number(arg)]||'Administration'}</h1><p class="lead">Kabbalamma Temple · Wave 1 demonstration</p><button class="primary" onclick="openDrawer('Administration details','generic','This is a static preview. RBAC, users, authentication and identity verification are part of Wave 2.')">View details</button></div>`}pageEl.innerHTML=html;document.title=(page==='visit'?'Temple visit':page==='login'?'Staff login':page==='home'?'Temple operations':page==='module'?'Temple modules':'myPrayer')+' · myPrayer';renderDrawer()}
+function openDrawer(title,type,data){drawerStack.push({title,type,data});renderDrawer()}
+function closeDrawer(){drawerStack=[];renderDrawer()}
+function backDrawer(){drawerStack.pop();renderDrawer()}
+function renderDrawer(){const root=document.getElementById('drawer-root');if(!drawerStack.length){root.innerHTML='';return}const d=drawerStack.at(-1);let body='';if(d.type==='ticket'){const i=Number(d.data),img=asset('ticket-'+(i+1)+'.jpg');body=`<img src="${img}" alt="${esc(d.title)}"><p>${ticketDesc[i]}</p>`;if(i===2){body+=`<h3>Find ticket</h3><label class="field-label">Ticket number</label><input class="field" id="ticket-query" value="KT458762"><div class="action-row"><button class="primary" onclick="openDrawer('E-ticket preview','print','KT458762')">Find ticket</button></div><p class="notice">A real operator photo check is required before printing in Wave 2. This Wave 1 preview does not verify identity or print physical tickets.</p>`}else if(i===1){body+=`<h3>Issue ticket</h3><label class="field-label">Service</label><select class="field"><option>Darshan</option><option>Archana seva</option><option>Special entry</option></select><label class="field-label">Visitor name</label><input class="field" placeholder="Visitor name"><label class="field-label">Number of visitors</label><input class="field" type="number" min="1" value="2"><button class="primary" onclick="openDrawer('Sample e-ticket','print','DEMO-001')">Preview ticket</button>`}else{body+=`<div class="action-row"><button class="primary" onclick="openDrawer('${esc(d.title)} details','generic','This clickable Wave 1 drill-down stays within the right drawer. The operational service will be implemented after milestone approval.')">Open details</button></div>`}}else if(d.type==='print'){body=`<div class="preview-ticket"><strong>Kabbalamma Temple</strong><p>Darshan · E-ticket</p><p>Ticket no. ${esc(d.data)}</p><p>Visitors: 2</p><p>Demo preview only</p></div><p class="notice">Camera identity verification and the actual print action are intentionally not enabled in Wave 1.</p><div class="action-row"><button class="button-secondary" onclick="openDrawer('Verification requirements','generic','In Wave 2, printing will require a live camera capture and liveness-checked operator match.')">View verification requirements</button></div>`}else if(d.type==='record'){body=`<h3>${esc(d.data)}</h3><div class="status-line">Service: Darshan</div><div class="status-line">Channel: Counter</div><div class="status-line">Status: Issued</div><div class="action-row"><button class="primary" onclick="openDrawer('E-ticket preview','print','${esc(d.data)}')">View ticket</button></div>`}else if(d.type==='service'){body=`<img src="${asset('temple-feature.jpg')}" alt="Temple"><p>Kabbalamma Temple · Karnataka</p><p>${['Please confirm current darshan timings with the temple office.','Explore sevas, poojas and meal services at the temple.','Visitor access, transport and directions to Kabbalu.','For visitor assistance, contact the temple office.'][Number(d.data)||0]}</p><div class="action-row"><button class="primary" onclick="go('search')">Temple directory</button></div>`}else if(d.type==='module'){body=`<p>${esc(String(d.data))}</p><p class="notice">Static preview. Clicking through demonstrates universal right-drawer navigation.</p><button class="primary" onclick="openDrawer('Record details','generic','This is a sample drill-down inside the right drawer.')">View record</button>`}else{body=`<p>${esc(d.data)}</p>`}root.innerHTML=`<div class="overlay" onclick="closeDrawer()"></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(d.title)}" style="--drawer-width:${['ticket','print'].includes(d.type)?'690px':'540px'}"><div class="drawer-head">${drawerStack.length>1?'<button class="back" onclick="backDrawer()">← Back</button>':'<span>Kabbalamma Temple</span>'}<button class="close" aria-label="Close drawer" onclick="closeDrawer()">✕</button></div><h2>${d.title}</h2>${body}</aside>`}
+window.addEventListener('hashchange',()=>{const target=location.hash.slice(1)||'visit';if(target!==route){route=target;drawerStack=[];currentMenu='';render()}});window.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});route=location.hash.slice(1)||'visit';render();
+</script></body></html>
