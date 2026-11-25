@@ -32,7 +32,7 @@ async function launch() {
     const key = required('STAFF_CREDENTIAL_HMAC_KEY');
     if (Buffer.byteLength(key) < 32) throw new Error('Credential HMAC key must have at least 32 bytes');
     const [store, oversight, credentials] = await Promise.all([mongoStore(database), mongoOversight(database), mongoCredentials(database)]);
-    const server = accessServer(makeAccess(store, providers, mode === 'development'), origin.origin, oversight, credentialService(credentials, key, mode === 'development'));
+    const server = accessServer(makeAccess(store, providers, mode === 'development'), origin.origin, oversight, credentialService(credentials, key, mode === 'development'), mode === 'development');
     server.on('error', () => {
       console.error('staff_access_listener_failed');
       void db.close().finally(() => { process.exitCode = 1; });
